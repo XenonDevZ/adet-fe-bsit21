@@ -16,12 +16,12 @@ declare global {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 flex items-center justify-center p-4">
+    <div class="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-red-600 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
 
         <!-- Logo / Header -->
         <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-red-900 rounded-full mb-4">
             <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
@@ -29,7 +29,7 @@ declare global {
           </div>
           <h1 class="text-2xl font-bold text-gray-900">ACBS</h1>
           <p class="text-gray-500 text-sm mt-1">Academic Consultation Booking System</p>
-          <p class="text-blue-700 text-xs font-medium mt-1">Liceo de Cagayan University</p>
+          <p class="text-red-700 text-xs font-medium mt-1">Liceo de Cagayan University</p>
         </div>
 
         <!-- Error message -->
@@ -44,7 +44,7 @@ declare global {
 
         <!-- Loading -->
         @if (loading()) {
-          <div class="flex items-center justify-center gap-2 text-blue-700 text-sm mb-4">
+          <div class="flex items-center justify-center gap-2 text-red-700 text-sm mb-4">
             <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -57,7 +57,7 @@ declare global {
         <div id="google-signin-btn" class="flex justify-center mb-6"></div>
 
         <p class="text-center text-xs text-gray-400">
-          Only <span class="font-medium text-blue-700">@liceo.edu.ph</span> accounts are allowed.
+          Only <span class="font-medium text-red-700">@liceo.edu.ph</span> accounts are allowed.
         </p>
       </div>
     </div>
