@@ -15,21 +15,37 @@ declare global {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div class="min-h-screen flex flex-col">
 
-        <!-- Logo / Header -->
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-            </svg>
+      <!-- Top half — dark maroon -->
+      <div class="bg-gradient-to-r from-red-950 to-red-800 flex-none h-48 flex flex-col items-center justify-center">
+        <h1 class="text-3xl font-bold text-white tracking-tight">Welcome to ACBS</h1>
+        <p class="text-red-300 text-sm mt-2">Liceo de Cagayan University</p>
+      </div>
+
+      <!-- Bottom half — light cream -->
+      <div class="flex-1 bg-rose-50 flex justify-center">
+
+        <!-- Card overlapping both halves -->
+        <div class="w-full max-w-md -mt-14 mb-10 h-fit bg-white rounded-2xl shadow-xl overflow-hidden">
+
+          <!-- Card header -->
+          <div class="px-8 pt-7 pb-5 text-center border-b border-gray-100">
+            <div class="inline-flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 bg-gradient-to-br from-red-900 to-red-600 rounded-xl flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                </svg>
+              </div>
+              <span class="font-bold text-gray-900 text-lg">ACBS</span>
+            </div>
+            <h2 class="text-base font-semibold text-gray-800">Academic Consultation Booking System</h2>
+            <p class="text-gray-400 text-xs mt-1">Sign in with your university account to continue.</p>
           </div>
-          <h1 class="text-2xl font-bold text-gray-900">ACBS</h1>
-          <p class="text-gray-500 text-sm mt-1">Academic Consultation Booking System</p>
-          <p class="text-blue-700 text-xs font-medium mt-1">Liceo de Cagayan University</p>
-        </div>
+
+          <!-- Body -->
+          <div class="px-8 py-6 space-y-4">
 
             <!-- Error -->
             @if (error()) {
@@ -41,23 +57,39 @@ declare global {
               </div>
             }
 
-        <!-- Loading -->
-        @if (loading()) {
-          <div class="flex items-center justify-center gap-2 text-blue-700 text-sm mb-4">
-            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-            </svg>
-            Signing you in...
+            <!-- Loading -->
+            @if (loading()) {
+              <div class="bg-red-50 border border-red-100 rounded-xl p-3 flex items-center gap-3 text-sm text-green-700">
+                <svg class="animate-spin h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Signing you in...
+              </div>
+            }
+
+            <!-- Google button -->
+<div class="flex justify-center py-2">
+  <div id="google-signin-btn"></div>
+</div>
+
+
+            <!-- Domain notice -->
+            <div class="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+              <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+              </svg>
+              Only <span class="font-semibold text-red-700 mx-1">@liceo.edu.ph</span> accounts are allowed
+            </div>
           </div>
-        }
 
-        <!-- Google Sign-In button rendered by GIS -->
-        <div id="google-signin-btn" class="flex justify-center mb-6"></div>
-
-        <p class="text-center text-xs text-gray-400">
-          Only <span class="font-medium text-blue-700">@liceo.edu.ph</span> accounts are allowed.
-        </p>
+          <!-- Footer -->
+          <div class="px-8 pb-6 text-center">
+            <p class="text-xs text-gray-400">
+              © {{ year }} ACBS. Liceo de Cagayan University.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   `,
