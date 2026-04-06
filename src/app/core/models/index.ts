@@ -13,22 +13,27 @@ export interface JwtPayload {
 }
 
 export interface User {
-  id: number
-  email: string
-  name: string
-  picture: string
-  role: Role
+  id:         number
+  email:      string
+  name:       string
+  picture:    string
+  course:     string | null  // ADD
+  year_level: string | null  // ADD
+  department: string | null  // ADD
+  role:       Role
   created_at: string
 }
 
+
 export interface Teacher {
-  teacher_id: number
-  user_id: number
-  name: string
-  email: string
-  picture: string
-  department: string | null
-  bio: string | null
+  teacher_id:  number
+  user_id:     number
+  name:        string
+  email:       string
+  picture:     string
+  department:  string | null
+  bio:         string | null
+  subjects:    string | null
 }
 
 export interface Availability {
@@ -41,22 +46,27 @@ export interface Availability {
 }
 
 export interface Booking {
-  id: number
-  student_id: number
-  teacher_id: number
-  availability_id: number
-  scheduled_date: string
-  start_time: string
-  end_time: string
-  status: BookingStatus
-  student_notes: string | null
-  teacher_notes: string | null
-  meet_link: string | null
-  student_name: string
-  student_email: string
-  teacher_name: string
-  created_at: string
-  updated_at: string
+  id:                number
+  student_id:        number
+  teacher_id:        number
+  availability_id:   number
+  scheduled_date:    string
+  start_time:        string
+  end_time:          string
+  status:            BookingStatus
+  consultation_type: 'ONLINE' | 'FACE_TO_FACE'
+  student_notes:     string | null
+  teacher_notes:     string | null
+  meet_link:         string | null
+  student_name:      string
+  student_email:     string
+  teacher_name:      string
+  created_at:        string
+  updated_at:        string
+  reschedule_date:       string | null
+  reschedule_start_time: string | null
+  reschedule_end_time:   string | null
+  reschedule_status:     'REQUESTED' | 'ACCEPTED' | 'REJECTED' | null
 }
 
 export interface Notification {

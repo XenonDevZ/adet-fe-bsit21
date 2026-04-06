@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { HttpClient, HttpParams } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { environment } from '../../../environments/environment'
 import type {
   ApiResponse, User, Teacher, Availability,
@@ -54,15 +54,17 @@ export class ApiService {
   }
 
   createBooking(data: {
-    teacher_id: number
-    availability_id: number
-    scheduled_date: string
-    start_time: string
-    end_time: string
-    notes?: string
+    teacher_id:        number
+    availability_id:   number
+    scheduled_date:    string
+    start_time:        string
+    end_time:          string
+    consultation_type: 'ONLINE' | 'FACE_TO_FACE'
+    notes?:            string
   }) {
     return this.http.post<ApiResponse<Booking>>(`${this.base}/bookings`, data)
   }
+  
 
   updateBookingStatus(id: number, status: BookingStatus) {
     return this.http.patch<ApiResponse<Booking>>(`${this.base}/bookings/${id}/status`, { status })
@@ -74,10 +76,62 @@ export class ApiService {
 
   // ── Notifications ──────────────────────────────────────
   getUnreadNotifications() {
-    return this.http.get<ApiResponse<Notification[]>>(`${this.base}/bookings/notifications/unread`)
+    return this.http.get<ApiResponse<Notification[]>>(
+      `${this.base}/bookings/notifications/unread`
+    )
+  }
+  
+  getAllNotifications() {
+    return this.http.get<ApiResponse<Notification[]>>(
+      `${this.base}/bookings/notifications/all`
+    )
+  }
+  
+  markNotificationsRead() {
+    return this.http.patch<ApiResponse<unknown>>(
+      `${this.base}/bookings/notifications/read-all`, {}
+    )
+  }
+  
+  markNotificationRead(id: number) {
+    return this.http.patch<ApiResponse<unknown>>(
+      `${this.base}/bookings/notifications/${id}/read`, {}
+    )
   }
 
-  markNotificationsRead() {
-    return this.http.patch<ApiResponse<unknown>>(`${this.base}/bookings/notifications/read-all`, {})
+  // ── Profile ────────────────────────────────────────────
+  getProfile() {
+    return this.http.get<ApiResponse<User>>(`${this.base}/profile`)
   }
+
+  updateProfile(data: {
+    name:       string
+    course:     string
+    year_level: string
+    department: string
+  }) {
+    return this.http.patch<ApiResponse<User>>(`${this.base}/profile`, data)
+  }
+
+  updateTeacherSubjects(userId: number, subjects: string) {
+    return this.http.patch<ApiResponse<unknown>>(
+      `${this.base}/users/${userId}/subjects`, { subjects }
+    )
+  }
+
+  requestReschedule(id: number, data: {
+    reschedule_date:       string
+    reschedule_start_time: string
+    reschedule_end_time:   string
+  }) {
+    return this.http.patch<ApiResponse<Booking>>(
+      `${this.base}/bookings/${id}/reschedule`, data
+    )
+  }
+  
+  respondReschedule(id: number, accept: boolean) {
+    return this.http.patch<ApiResponse<Booking>>(
+      `${this.base}/bookings/${id}/reschedule-response`, { accept }
+    )
+  } 
 }

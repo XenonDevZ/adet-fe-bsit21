@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { ApiService } from '../../../core/services/api.service'
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component'
-import type { Booking, BookingStatus } from '../../../core/models/index'
+import type { Booking } from '../../../core/models/index'
 
 @Component({
   selector: 'app-all-bookings',
@@ -11,18 +11,29 @@ import type { Booking, BookingStatus } from '../../../core/models/index'
   imports: [CommonModule, FormsModule, StatusBadgeComponent],
   template: `
     <div>
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">All Bookings</h2>
-        <span class="text-sm text-gray-400">{{ bookings().length }} total</span>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">All Bookings</h2>
+          <p class="text-gray-400 text-sm mt-1">Monitor and manage all consultation bookings.</p>
+        </div>
+        <span class="text-sm font-semibold bg-red-100 text-red-800 px-3 py-1.5 rounded-xl">
+          {{ bookings().length }} total
+        </span>
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap gap-3 mb-5">
-        <input type="text" [(ngModel)]="search" placeholder="Search student or teacher..."
-          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-56" />
+      <div class="flex flex-wrap gap-3 mb-6">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" [(ngModel)]="search" placeholder="Search student or teacher..."
+            class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all w-64" />
+        </div>
 
         <select [(ngModel)]="statusFilter"
-          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+          class="border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all">
           <option value="">All Statuses</option>
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
@@ -31,67 +42,88 @@ import type { Booking, BookingStatus } from '../../../core/models/index'
         </select>
 
         <input type="date" [(ngModel)]="dateFilter"
-          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          class="border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all" />
 
-        <button (click)="clearFilters()"
-          class="text-sm text-gray-500 hover:text-gray-700 underline">
-          Clear
-        </button>
+        @if (search || statusFilter || dateFilter) {
+          <button (click)="clearFilters()"
+            class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-700 font-medium px-3 py-2.5 hover:bg-red-50 rounded-xl transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Clear
+          </button>
+        }
       </div>
 
       @if (loading()) {
-        <p class="text-sm text-gray-400">Loading...</p>
+        <div class="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400 text-sm">
+          Loading bookings...
+        </div>
       }
 
       <!-- Table -->
-      <div class="bg-white rounded-xl shadow overflow-x-auto">
-        <table class="w-full text-sm min-w-[700px]">
-          <thead class="bg-blue-900 text-white">
-            <tr>
-              <th class="text-left px-4 py-3 font-medium">#</th>
-              <th class="text-left px-4 py-3 font-medium">Student</th>
-              <th class="text-left px-4 py-3 font-medium">Teacher</th>
-              <th class="text-left px-4 py-3 font-medium">Date & Time</th>
-              <th class="text-left px-4 py-3 font-medium">Status</th>
-              <th class="text-left px-4 py-3 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (b of filtered; track b.id) {
-              <tr class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-gray-400">{{ b.id }}</td>
-                <td class="px-4 py-3">
-                  <p class="font-medium text-gray-900">{{ b.student_name }}</p>
-                  <p class="text-xs text-gray-400">{{ b.student_email }}</p>
-                </td>
-                <td class="px-4 py-3 text-gray-700">{{ b.teacher_name }}</td>
-                <td class="px-4 py-3 text-gray-600">
-                  {{ b.scheduled_date }}<br />
-                  <span class="text-xs text-gray-400">{{ b.start_time }} – {{ b.end_time }}</span>
-                </td>
-                <td class="px-4 py-3">
-                  <app-status-badge [status]="b.status" />
-                </td>
-                <td class="px-4 py-3">
-                  @if (b.status === 'PENDING' || b.status === 'APPROVED') {
-                    <button (click)="cancel(b.id)"
-                      [disabled]="acting() === b.id"
-                      class="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40">
-                      Cancel
-                    </button>
-                  } @else {
-                    <span class="text-xs text-gray-300">—</span>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      @if (!loading()) {
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[700px]">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100">
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">ID</th>
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Teacher</th>
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Date & Time</th>
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                  <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                @for (b of filtered(); track b.id) {
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-5 py-4 text-gray-400 text-xs font-mono">#{{ b.id }}</td>
+                    <td class="px-5 py-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-xs font-bold text-red-800">
+                          {{ b.student_name.charAt(0) }}
+                        </div>
+                        <div>
+                          <p class="font-medium text-gray-900">{{ b.student_name }}</p>
+                          <p class="text-xs text-gray-400">{{ b.student_email }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-5 py-4 text-gray-700 font-medium">{{ b.teacher_name }}</td>
+                    <td class="px-5 py-4">
+                      <p class="text-gray-800 font-medium">{{ b.scheduled_date }}</p>
+                      <p class="text-xs text-gray-400">{{ b.start_time }} – {{ b.end_time }}</p>
+                    </td>
+                    <td class="px-5 py-4">
+                      <app-status-badge [status]="b.status" />
+                    </td>
+                    <td class="px-5 py-4">
+                      @if (b.status === 'PENDING' || b.status === 'APPROVED') {
+                        <button (click)="cancel(b.id)"
+                          [disabled]="acting() === b.id"
+                          class="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-40">
+                          {{ acting() === b.id ? '...' : 'Cancel' }}
+                        </button>
+                      } @else {
+                        <span class="text-xs text-gray-300">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
-        @if (!loading() && filtered.length === 0) {
-          <div class="text-center py-10 text-gray-400 text-sm">No bookings match your filters.</div>
-        }
-      </div>
+          @if (filtered().length === 0) {
+            <div class="p-10 text-center">
+              <p class="text-gray-500 font-medium">No bookings match your filters</p>
+              <p class="text-gray-400 text-sm mt-1">Try adjusting your search or filters.</p>
+            </div>
+          }
+        </div>
+      }
     </div>
   `,
 })
@@ -120,14 +152,12 @@ export class AllBookingsComponent implements OnInit {
     })
   }
 
-  get filtered(): Booking[] {
+  filtered(): Booking[] {
     return this.bookings().filter(b => {
       const q = this.search.toLowerCase()
-      const matchSearch = !q ||
-        b.student_name.toLowerCase().includes(q) ||
-        b.teacher_name.toLowerCase().includes(q)
+      const matchSearch = !q || b.student_name.toLowerCase().includes(q) || b.teacher_name.toLowerCase().includes(q)
       const matchStatus = !this.statusFilter || b.status === this.statusFilter
-      const matchDate   = !this.dateFilter  || b.scheduled_date === this.dateFilter
+      const matchDate   = !this.dateFilter   || b.scheduled_date === this.dateFilter
       return matchSearch && matchStatus && matchDate
     })
   }

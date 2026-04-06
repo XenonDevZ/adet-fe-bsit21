@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router'
 import { authGuard } from './core/guards/auth.guard'
 import { roleGuard } from './core/guards/role.guard'
+import { profileGuard } from './core/guards/profile.guard'
 
 export const routes: Routes = [
   // Public
@@ -13,7 +14,7 @@ export const routes: Routes = [
   // Student
   {
     path: 'student',
-    canActivate: [authGuard, roleGuard(['STUDENT', 'ADMIN'])],
+    canActivate: [authGuard, roleGuard(['STUDENT', 'ADMIN']), profileGuard],
     loadComponent: () =>
       import('./features/student/student-layout.component').then(m => m.StudentLayoutComponent),
     children: [
@@ -31,6 +32,16 @@ export const routes: Routes = [
         path: 'my-bookings',
         loadComponent: () =>
           import('./features/student/my-bookings/my-bookings.component').then(m => m.MyBookingsComponent),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/student/profile/profile.component').then(m => m.ProfileComponent),
+      },
+      {
+        path: 'profile-setup',
+        loadComponent: () =>
+          import('./features/student/profile-setup/profile-setup.component').then(m => m.ProfileSetupComponent),
       },
       { path: '', redirectTo: 'teachers', pathMatch: 'full' },
     ],
@@ -81,6 +92,14 @@ export const routes: Routes = [
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
+  },
+
+  // Profile setup (outside student layout — shown before sidebar loads)
+  {
+    path: 'profile-setup',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/student/profile-setup/profile-setup.component').then(m => m.ProfileSetupComponent),
   },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },

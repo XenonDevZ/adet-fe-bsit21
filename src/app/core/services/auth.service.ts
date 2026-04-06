@@ -47,9 +47,10 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY)
+    localStorage.removeItem('acbs_profile_complete')
     this.currentUser.set(null)
     this.router.navigate(['/login'])
-  }
+  }  
 
   redirectByRole(): void {
     const role = this.currentUser()?.role
@@ -73,4 +74,17 @@ export class AuthService {
       return null
     }
   }
+  isProfileComplete(): boolean {
+    // We check against the stored token — but token doesn't have course/year_level
+    // So we rely on the API call after login. This is a simple flag approach.
+    return !!localStorage.getItem('acbs_profile_complete')
+  }
+  
+  setProfileComplete(): void {
+    localStorage.setItem('acbs_profile_complete', 'true')
+  }
+  
+  clearProfileComplete(): void {
+    localStorage.removeItem('acbs_profile_complete')
+  }  
 }
