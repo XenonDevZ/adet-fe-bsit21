@@ -19,6 +19,12 @@ export const routes: Routes = [
       import('./features/student/student-layout.component').then(m => m.StudentLayoutComponent),
     children: [
       {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/student/dashboard/dashboard.component').then(m => m.StudentDashboardComponent),
+      },      
+
+      {
         path: 'teachers',
         loadComponent: () =>
           import('./features/student/teachers-list/teachers-list.component').then(m => m.TeachersListComponent),
@@ -43,7 +49,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/student/profile-setup/profile-setup.component').then(m => m.ProfileSetupComponent),
       },
-      { path: '', redirectTo: 'teachers', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 

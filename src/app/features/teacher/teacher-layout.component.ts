@@ -17,13 +17,8 @@ import { NotificationPanelComponent } from '../../shared/components/notification
 
         <!-- Brand -->
         <div class="px-6 py-5 border-b border-gray-100">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-br from-red-900 to-red-600 rounded-xl flex items-center justify-center shadow">
-              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-              </svg>
-            </div>
+          <div class="flex items-center gap-2">
+            <img src="/assets/acbs-logo.png" alt="ACBS Logo" class="w-12 h-12 object-contain" />
             <div>
               <p class="font-bold text-gray-900 text-sm leading-tight">ACBS</p>
               <p class="text-xs text-gray-400 leading-tight">Liceo de Cagayan</p>

@@ -17,13 +17,8 @@ import { NotificationPanelComponent } from '../../shared/components/notification
 
         <!-- Brand -->
         <div class="px-6 py-5 border-b border-gray-100">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-br from-red-900 to-red-600 rounded-xl flex items-center justify-center shadow">
-              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-              </svg>
-            </div>
+          <div class="flex items-center gap-2">
+            <img src="/assets/acbs-logo.png" alt="ACBS Logo" class="w-12 h-12 object-contain" />
             <div>
               <p class="font-bold text-gray-900 text-sm leading-tight">ACBS</p>
               <p class="text-xs text-gray-400 leading-tight">Liceo de Cagayan</p>
@@ -34,6 +29,16 @@ import { NotificationPanelComponent } from '../../shared/components/notification
         <!-- Nav links -->
         <nav class="flex-1 px-3 py-4 space-y-1">
           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Menu</p>
+
+        <a routerLink="/student/dashboard" routerLinkActive="bg-red-50 text-red-800 font-semibold"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                 d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+            </svg>
+            Dashboard
+          </a>
+
 
           <a routerLink="/student/teachers" routerLinkActive="bg-red-50 text-red-800 font-semibold"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm">
