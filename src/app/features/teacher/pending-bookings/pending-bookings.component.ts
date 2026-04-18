@@ -17,28 +17,28 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
     <div class="min-h-screen pb-12 animate-in fade-in zoom-in-95 duration-500 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
 
       <!-- ── ELEVATED HERO HEADER ── -->
-      <div class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 rounded-[3rem] p-8 lg:p-12 overflow-hidden shadow-2xl border border-white/10 mb-8 group">
+      <div class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 overflow-hidden shadow-2xl border border-white/10 mb-8 group">
         <!-- Ambient Background Sweeps -->
         <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-1000"></div>
         <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-red-400/20 rounded-full blur-[60px] pointer-events-none"></div>
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
 
-        <div class="relative z-10 flex flex-col lg:flex-row gap-8 lg:items-center justify-between">
+        <div class="relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-center justify-between">
           <div>
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-4 shadow-sm">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-3 sm:mb-4 shadow-sm">
                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 box-shadow-glow"></span>
                Consultation Management
             </span>
-            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md">
               Consultation Requests
             </h1>
-            <p class="text-red-100 font-medium text-lg max-w-xl">
+            <p class="text-red-100 font-medium text-base sm:text-lg max-w-xl">
               Review, approve, and proactively manage student consultation sessions with clarity.
             </p>
           </div>
           <a routerLink="/teacher/schedule"
             class="flex items-center justify-center gap-2 bg-white dark:bg-white/10 text-red-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 group/btn
-                   text-[11px] font-black uppercase tracking-widest px-8 py-4 rounded-[1.25rem] transition-all shadow-xl dark:shadow-none active:scale-95 shrink-0 border border-white dark:border-white/10 backdrop-blur-md">
+                   text-[11px] font-black uppercase tracking-widest px-6 sm:px-8 py-3.5 sm:py-4 rounded-[1.25rem] transition-all shadow-xl dark:shadow-none active:scale-95 shrink-0 border border-white dark:border-white/10 backdrop-blur-md w-full sm:w-auto">
             <svg class="w-5 h-5 group-hover/btn:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
@@ -54,7 +54,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
         <div class="flex-1 min-w-0 space-y-6">
 
           <!-- Glass Controls Card -->
-          <div class="bg-white/80 dark:bg-card/90 backdrop-blur-2xl rounded-[2.5rem] shadow-xl shadow-red-900/5 dark:shadow-none border border-white dark:border-white/5 p-6 sticky top-6 z-30">
+          <div class="bg-white/80 dark:bg-card/90 backdrop-blur-2xl rounded-[2.5rem] shadow-xl shadow-red-900/5 dark:shadow-none border border-white dark:border-white/5 p-4 sm:p-6 sticky top-4 sm:top-6 z-30">
             <div class="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-6">
               
               <!-- Filter Tabs -->

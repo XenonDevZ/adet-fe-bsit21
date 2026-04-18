@@ -30,16 +30,16 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
            <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 blur-[60px] rotate-[30deg] pointer-events-none"></div>
         </div>
 
-        <div class="relative z-20 px-8 pt-12 pb-24 sm:px-12 lg:px-16 md:pt-16 md:pb-28">
-           <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+        <div class="relative z-20 px-5 pt-8 pb-20 sm:px-8 sm:pt-12 sm:pb-24 lg:px-16 lg:pt-16 lg:pb-28">
+           <div class="flex flex-col gap-5 sm:gap-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-4 shadow-sm">Academic Portal</span>
-              <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white mb-3 leading-tight drop-shadow-md">
+              <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-3 sm:mb-4 shadow-sm">Academic Portal</span>
+              <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white mb-2 sm:mb-3 leading-tight drop-shadow-md">
                 {{ greeting() }}, <span class="text-red-200">{{ firstName() }}!</span>
               </h1>
               <p class="max-w-lg text-sm md:text-base text-red-100/90 font-medium leading-relaxed">{{ dynamicSubtitle() }}</p>
             </div>
-            <button class="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white/90 backdrop-blur-md border border-white/40 text-red-900 font-black tracking-wider text-xs uppercase hover:bg-white hover:scale-105 rounded-[1.25rem] transition-all duration-300 shadow-xl shadow-black/10 active:scale-95 shrink-0 group/btn"
+            <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 bg-white/90 backdrop-blur-md border border-white/40 text-red-900 font-black tracking-wider text-xs uppercase hover:bg-white hover:scale-105 rounded-[1.25rem] transition-all duration-300 shadow-xl shadow-black/10 active:scale-95 shrink-0 group/btn"
               (click)="router.navigate(['/student/teachers'])">
               <svg class="w-5 h-5 group-hover/btn:-rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -149,8 +149,8 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
                   </svg>
                 </button>
               </div>
-              <div class="flex-1 overflow-x-auto p-4 pt-1">
-                <table class="w-full text-sm">
+              <div class="flex-1 overflow-x-auto p-2 sm:p-4 pt-1">
+                <table class="w-full text-sm min-w-[480px]">
                   <thead>
                     <tr>
                       <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Instructor</th>
@@ -258,7 +258,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
           </div>
 
           <!-- ── Row 2: Donut (1/3) + Calendar (1/3) + Quick CTA (1/3) ── -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
 
             <!-- Status Donut -->
             <div class="bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 p-8 flex flex-col items-center justify-center relative overflow-hidden hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">

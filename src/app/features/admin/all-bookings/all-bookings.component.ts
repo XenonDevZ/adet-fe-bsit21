@@ -46,11 +46,11 @@ import autoTable from 'jspdf-autotable'
       <div class="px-4 pb-10 sm:px-6 lg:px-12">
 
         <!-- Controls -->
-        <div class="bg-white/80 dark:bg-card backdrop-blur-xl rounded-[2rem] shadow-sm dark:shadow-none border border-white dark:border-white/5 p-5 mb-8">
-          <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+        <div class="bg-white/80 dark:bg-card backdrop-blur-xl rounded-[2rem] shadow-sm dark:shadow-none border border-white dark:border-white/5 p-4 sm:p-5 mb-8">
+          <div class="flex flex-col gap-4">
 
-            <!-- Left: Search -->
-            <div class="relative w-full xl:w-[350px]">
+            <!-- Top row: Search -->
+            <div class="relative w-full">
               <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 focus-within:text-red-800 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
@@ -58,33 +58,33 @@ import autoTable from 'jspdf-autotable'
                 class="w-full pl-12 pr-4 py-3.5 bg-gray-50/50 dark:bg-black/20 border border-gray-100 dark:border-white/10 placeholder-gray-400 text-gray-900 dark:text-foreground text-sm font-bold rounded-2xl focus:outline-none focus:ring-4 focus:ring-red-900/10 dark:focus:ring-red-900/20 focus:border-red-200 dark:focus:border-red-500/50 focus:bg-white dark:focus:bg-black/40 transition-all shadow-inner dark:shadow-none" />
             </div>
 
-            <!-- Right: Filters -->
-            <div class="flex flex-wrap items-center gap-3 xl:ml-auto">
-              <!-- Pill filters (MacOS style segmented control) -->
-              <div class="flex items-center p-1.5 bg-gray-50/80 dark:bg-black/20 rounded-2xl border border-gray-100/80 dark:border-white/10">
+            <!-- Bottom row: Filters (scrollable on mobile) -->
+            <div class="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-hide">
+              <!-- Pill filters -->
+              <div class="flex items-center p-1.5 bg-gray-50/80 dark:bg-black/20 rounded-2xl border border-gray-100/80 dark:border-white/10 shrink-0">
                 @for (s of statusFilters; track s.value) {
                   <button (click)="statusFilter = s.value" 
-                    class="px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all duration-300"
+                    class="px-3 sm:px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all duration-300 whitespace-nowrap"
                     [class]="statusFilter === s.value ? 'bg-white dark:bg-white/10 text-red-800 dark:text-white shadow-[0_2px_10px_rgb(0,0,0,0.06)] dark:shadow-none border border-gray-100/50 dark:border-white/10' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-transparent'">
                     {{ s.label }}
                   </button>
                 }
               </div>
 
-              <!-- Selects -->
-              <div class="flex items-center gap-3">
+              <!-- Date + Type + Clear + Export -->
+              <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 
                 <p-datepicker [(ngModel)]="dateFilter" 
                   [showIcon]="true"
                   [iconDisplay]="'input'"
                   dateFormat="yy-mm-dd"
-                  placeholder="Select Date"
+                  placeholder="Date"
                   appendTo="body"
-                  [inputStyleClass]="'h-[46px] border border-gray-100 hover:border-gray-200 rounded-2xl pl-10 pr-4 text-xs font-bold bg-white text-gray-700 focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-red-400 transition-all shadow-sm w-[130px] sm:w-[150px]'"
+                  [inputStyleClass]="'h-[42px] sm:h-[46px] border border-gray-100 hover:border-gray-200 rounded-2xl pl-9 sm:pl-10 pr-3 text-xs font-bold bg-white text-gray-700 focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-red-400 transition-all shadow-sm w-[110px] sm:w-[140px]'"
                 ></p-datepicker>
                 
                 <select [(ngModel)]="typeFilter"
-                  class="appearance-none h-[46px] border border-gray-100/80 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 rounded-2xl pl-4 pr-10 text-xs font-bold bg-gray-50/80 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/20 focus:border-red-400 dark:focus:border-red-500/50 transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010L12%2015L17%2010%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-no-repeat bg-[right_8px_center]">
+                  class="appearance-none h-[42px] sm:h-[46px] border border-gray-100/80 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 rounded-2xl pl-3 sm:pl-4 pr-8 text-xs font-bold bg-gray-50/80 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/20 focus:border-red-400 dark:focus:border-red-500/50 transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010L12%2015L17%2010%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-no-repeat bg-[right_4px_center]">
                   <option value="" class="font-bold dark:bg-card">All Types</option>
                   <option value="ONLINE" class="font-bold dark:bg-card">Online</option>
                   <option value="FACE_TO_FACE" class="font-bold dark:bg-card">Face-to-Face</option>
@@ -93,7 +93,7 @@ import autoTable from 'jspdf-autotable'
                 <!-- Clear -->
                 @if (search || statusFilter || dateFilter || typeFilter) {
                   <button (click)="clearFilters()" type="button"
-                    class="h-[46px] w-[46px] flex items-center justify-center text-red-800/70 hover:text-red-900 bg-red-50 hover:bg-red-100 rounded-2xl transition-all border border-red-100">
+                    class="h-[42px] sm:h-[46px] w-[42px] sm:w-[46px] flex items-center justify-center text-red-800/70 hover:text-red-900 bg-red-50 hover:bg-red-100 rounded-2xl transition-all border border-red-100">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -102,16 +102,16 @@ import autoTable from 'jspdf-autotable'
 
                 <!-- Export Buttons -->
                 <button (click)="exportExcel()" type="button" title="Export as Excel"
-                  class="h-[46px] flex items-center gap-2 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 rounded-2xl transition-all border border-emerald-100 hover:border-emerald-200 shadow-sm active:scale-95">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  class="h-[42px] sm:h-[46px] flex items-center gap-1.5 px-3 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 rounded-2xl transition-all border border-emerald-100 hover:border-emerald-200 shadow-sm active:scale-95">
+                  <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
                   <span class="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Excel</span>
                 </button>
 
                 <button (click)="exportPdf()" type="button" title="Export as PDF"
-                  class="h-[46px] flex items-center gap-2 px-4 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-900 rounded-2xl transition-all border border-red-100 hover:border-red-200 shadow-sm active:scale-95">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  class="h-[42px] sm:h-[46px] flex items-center gap-1.5 px-3 sm:px-4 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-900 rounded-2xl transition-all border border-red-100 hover:border-red-200 shadow-sm active:scale-95">
+                  <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                   </svg>
                   <span class="text-[10px] font-black uppercase tracking-widest hidden sm:inline">PDF</span>

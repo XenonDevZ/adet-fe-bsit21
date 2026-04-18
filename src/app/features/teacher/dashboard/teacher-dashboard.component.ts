@@ -15,32 +15,32 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
     <div class="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-10 pb-20 animate-in fade-in zoom-in-95 duration-500">
 
       <!-- ── ELEVATED HERO GREETING ── -->
-      <div class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 rounded-[3rem] p-10 overflow-hidden shadow-2xl border border-white/10 group">
+      <div class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-2xl border border-white/10 group">
         
         <!-- Ambient Background Sweeps -->
         <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-1000"></div>
         <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-red-400/20 rounded-full blur-[60px] pointer-events-none"></div>
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
 
-        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8">
           <div>
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-4 shadow-sm">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-3 sm:mb-4 shadow-sm">
                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 box-shadow-glow"></span>
                Teacher Dashboard
             </span>
-            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md">
               {{ greeting() }}, <span class="bg-gradient-to-r from-red-200 to-white bg-clip-text text-transparent">{{ firstName() }}!</span>
             </h2>
-            <p class="text-red-100 font-medium text-lg flex items-center gap-2">
-              <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="text-red-100 font-medium text-base sm:text-lg flex items-center gap-2">
+              <svg class="w-5 h-5 opacity-75 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               {{ dynamicSubtitle() }}
             </p>
           </div>
 
           <!-- Quick actions -->
-          <div class="flex flex-wrap lg:flex-nowrap gap-4">
+          <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <a routerLink="/teacher/bookings"
-              class="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[11px] font-black uppercase tracking-widest px-6 py-4 rounded-[1.25rem] transition-all backdrop-blur-sm active:scale-95 shadow-lg relative overflow-hidden group/btn">
+              class="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[11px] font-black uppercase tracking-widest px-5 sm:px-6 py-3.5 sm:py-4 rounded-[1.25rem] transition-all backdrop-blur-sm active:scale-95 shadow-lg relative overflow-hidden group/btn">
               <div class="absolute inset-x-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent top-0 group-hover/btn:opacity-100 opacity-50 transition-opacity"></div>
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -48,7 +48,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
               All Requests
             </a>
             <a routerLink="/teacher/schedule"
-              class="flex items-center gap-2 bg-white hover:bg-red-50 text-red-900 text-[11px] font-black uppercase tracking-widest px-6 py-4 rounded-[1.25rem] transition-all shadow-xl active:scale-95 border border-white group/btn2">
+              class="flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-red-900 text-[11px] font-black uppercase tracking-widest px-5 sm:px-6 py-3.5 sm:py-4 rounded-[1.25rem] transition-all shadow-xl active:scale-95 border border-white group/btn2">
               <svg class="w-5 h-5 group-hover/btn2:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
@@ -249,7 +249,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
         </div>
 
         <!-- CSS Bar Chart -->
-        <div class="flex items-end gap-4 h-48 mt-4">
+        <div class="flex items-end gap-1.5 sm:gap-4 h-40 sm:h-48 mt-4 overflow-x-auto pb-1">
           @for (day of weeklyActivity(); track day.label) {
             <div class="flex-1 flex flex-col items-center gap-3 relative group">
               <!-- Tooltip style count -->

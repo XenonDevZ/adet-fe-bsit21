@@ -132,9 +132,9 @@ import { ThemeService } from '../../core/services/theme.service'
       <div class="flex-1 flex flex-col min-h-screen lg:pl-[296px] relative w-full transition-all">
 
         <!-- Floating Top bar -->
-        <header class="sticky top-4 z-40 mx-4 lg:mx-8 px-5 py-3 
-                       rounded-[1.5rem] bg-white/70 dark:bg-background/90 backdrop-blur-2xl border border-white dark:border-white/5 
-                       shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center justify-between lg:justify-end gap-4 
+        <header class="sticky top-2 sm:top-4 z-40 mx-2 sm:mx-4 lg:mx-8 px-3 sm:px-5 py-2.5 sm:py-3
+                       rounded-[1.25rem] sm:rounded-[1.5rem] bg-white/70 dark:bg-background/90 backdrop-blur-2xl border border-white dark:border-white/5
+                       shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center justify-between lg:justify-end gap-2 sm:gap-4
                        transition-all">
 
           <!-- Mobile hamburger -->
@@ -189,7 +189,7 @@ import { ThemeService } from '../../core/services/theme.service'
             </div>
 
             <!-- Avatar -->
-            <div class="h-8 w-px bg-gray-200 mx-1"></div>
+            <div class="hidden xs:block h-8 w-px bg-gray-200 dark:bg-white/10 mx-0.5 sm:mx-1"></div>
             
             <button routerLink="/student/profile" class="relative group outline-none">
               <div class="absolute inset-0 bg-red-900 rounded-[1rem] blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>

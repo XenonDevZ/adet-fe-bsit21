@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '430px',
+      },
       colors: {
         /* Override the CSS-var based primary with hard maroon */
         primary: {
@@ -26,6 +29,15 @@ module.exports = {
     },
   },
   plugins: [
-    require('tailwindcss-primeui')
+    require('tailwindcss-primeui'),
+    function({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        },
+      })
+    }
   ],
 }
