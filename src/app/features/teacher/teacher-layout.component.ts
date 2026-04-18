@@ -8,6 +8,7 @@ import { NotificationPanelComponent } from '../../shared/components/notification
 import { HeaderSearchComponent } from '../../shared/components/header-search/header-search.component'
 import { VideoCallComponent } from '../../shared/components/video-call/video-call.component'
 import { NotificationService } from '../../core/services/notification.service'
+import { ThemeService } from '../../core/services/theme.service'
 
 @Component({
   selector: 'app-teacher-layout',
@@ -141,10 +142,24 @@ import { NotificationService } from '../../core/services/notification.service'
 
             <app-header-search />
 
+            <!-- Theme toggle -->
+            <button (click)="themeService.toggleTheme()" title="Toggle Dark Mode"
+              class="relative p-2.5 rounded-xl bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 shadow-sm border border-gray-100 dark:border-white/5 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
+              @if (themeService.isDark()) {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              } @else {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              }
+            </button>
+
             <!-- Notification bell -->
             <div class="relative flex items-center">
               <button (click)="togglePanel()"
-                class="relative p-2.5 rounded-xl bg-white text-gray-500 shadow-sm border border-gray-100 hover:text-gray-900 hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
+                class="relative p-2.5 rounded-xl bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 shadow-sm dark:shadow-none border border-gray-100 dark:border-white/5 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -167,7 +182,7 @@ import { NotificationService } from '../../core/services/notification.service'
             </div>
 
             <!-- Avatar -->
-            <div class="h-8 w-px bg-gray-200 mx-1"></div>
+            <div class="h-8 w-px bg-gray-200 dark:bg-white/10 mx-1"></div>
             
             <button routerLink="/teacher/profile" class="relative group outline-none">
               <div class="absolute inset-0 bg-red-900 rounded-[1rem] blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
@@ -197,6 +212,7 @@ import { NotificationService } from '../../core/services/notification.service'
 export class TeacherLayoutComponent {
   auth = inject(AuthService)
   notifService = inject(NotificationService)
+  themeService = inject(ThemeService)
   private api = inject(ApiService)
 
   showPanel = signal(false)
