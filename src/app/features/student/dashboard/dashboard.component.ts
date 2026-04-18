@@ -258,7 +258,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
           </div>
 
           <!-- ── Row 2: Donut (1/3) + Calendar (1/3) + Quick CTA (1/3) ── -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
 
             <!-- Status Donut -->
             <div class="bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 p-8 flex flex-col items-center justify-center relative overflow-hidden hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">
@@ -352,7 +352,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
             </div>
 
             <!-- Quick Actions CTA -->
-            <div class="rounded-[2.5rem] bg-gray-900/90 backdrop-blur-3xl p-8 flex flex-col shadow-2xl shadow-gray-900/20 border border-gray-700 relative overflow-hidden group/cta hover:border-gray-600 transition-all duration-500">
+            <div class="sm:col-span-2 lg:col-span-1 rounded-[2.5rem] bg-gray-900/90 backdrop-blur-3xl p-6 sm:p-8 flex flex-col shadow-2xl shadow-gray-900/20 border border-gray-700 relative overflow-hidden group/cta hover:border-gray-600 transition-all duration-500">
                <!-- Decorative elements -->
                <div class="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-[40px] pointer-events-none group-hover/cta:scale-110 transition-transform duration-700"></div>
                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-red-600/10 rounded-full blur-[50px] pointer-events-none group-hover/cta:bg-red-500/20 transition-colors duration-700"></div>
