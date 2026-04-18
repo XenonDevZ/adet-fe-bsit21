@@ -1,0 +1,6 @@
+{
+  "framework": "angular",
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "ng build --configuration production",
+  "outputDirectory": "dist/adet-fe-bsit21/browser"
+}
