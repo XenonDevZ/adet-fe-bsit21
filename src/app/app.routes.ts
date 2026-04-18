@@ -40,6 +40,11 @@ export const routes: Routes = [
           import('./features/student/my-bookings/my-bookings.component').then(m => m.MyBookingsComponent),
       },
       {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./features/student/calendar/calendar.component').then(m => m.CalendarComponent),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./features/student/profile/profile.component').then(m => m.ProfileComponent),
@@ -61,6 +66,11 @@ export const routes: Routes = [
       import('./features/teacher/teacher-layout.component').then(m => m.TeacherLayoutComponent),
     children: [
       {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/teacher/dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
+      },
+      {
         path: 'schedule',
         loadComponent: () =>
           import('./features/teacher/schedule-manager/schedule-manager.component').then(m => m.ScheduleManagerComponent),
@@ -70,7 +80,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/teacher/pending-bookings/pending-bookings.component').then(m => m.PendingBookingsComponent),
       },
-      { path: '', redirectTo: 'bookings', pathMatch: 'full' },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/teacher/profile-settings/profile-settings.component').then(m => m.ProfileSettingsComponent),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 

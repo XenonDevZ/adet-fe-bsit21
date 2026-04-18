@@ -1,3 +1,71 @@
+@import "@angular/cdk/overlay-prebuilt.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  color-scheme: light;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --background: 0 0% 98%;
+  --foreground: 0 0% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 8%;
+
+  /* Maroon/Crimson — main school color (#831b1b) */
+  --primary: 0 64% 30%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 15%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 0 30% 95%;
+  --accent-foreground: 0 68% 30%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 0 68% 30%;
+  --radius: 0.625rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: 223 7% 21%;
+  --foreground: 0 0% 95%;
+  --card: 223 6% 18%;
+  --card-foreground: 0 0% 95%;
+  --popover: 223 6% 18%;
+  --popover-foreground: 0 0% 95%;
+
+  /* Lighter maroon for dark mode readability */
+  --primary: 0 68% 50%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 223 6% 25%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 223 6% 25%;
+  --muted-foreground: 0 0% 70%;
+  --accent: 223 6% 25%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 0 62% 63%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 225 6% 15%;
+  --input: 225 6% 15%;
+  --ring: 0 68% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

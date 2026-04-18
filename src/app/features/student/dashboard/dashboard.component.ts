@@ -3,447 +3,479 @@ import { CommonModule } from '@angular/common'
 import { Router, RouterLink } from '@angular/router'
 import { ApiService } from '../../../core/services/api.service'
 import { AuthService } from '../../../core/services/auth.service'
-import type { Booking, User } from '../../../core/models/index'
+import type { Booking } from '../../../core/models/index'
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component'
 
 interface StudentStats {
-  total:     number
-  pending:   number
-  approved:  number
+  total: number
+  pending: number
+  approved: number
   completed: number
   cancelled: number
 }
 
+import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
+
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, StatusBadgeComponent, TimeFormatPipe],
   template: `
-    <div>
-      <!-- Page header -->
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <p class="text-gray-400 text-sm mt-1">Here's what's going on with your consultations.</p>
+    <div class="h-full w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 flex flex-col items-center">
+
+      <!-- ── Floating Hero Header ─────────────────────────────────── -->
+      <div class="w-full relative z-10 mb-20 group">
+        <div class="absolute inset-0 bg-gradient-to-r from-red-900 via-red-800 to-red-900 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl shadow-red-900/20 transform group-hover:scale-[1.005] transition-transform duration-700 ease-out overflow-hidden">
+           <!-- Subtle inner glow effects -->
+           <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 blur-[60px] rotate-[30deg] pointer-events-none"></div>
         </div>
-        <button (click)="router.navigate(['/student/teachers'])"
-          class="flex items-center gap-2 bg-red-800 hover:bg-red-700 text-white
-                 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Book Consultation
-        </button>
+
+        <div class="relative z-20 px-8 pt-12 pb-24 sm:px-12 lg:px-16 md:pt-16 md:pb-28">
+           <div class="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-4 shadow-sm">Academic Portal</span>
+              <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white mb-3 leading-tight drop-shadow-md">
+                {{ greeting() }}, <span class="text-red-200">{{ firstName() }}!</span>
+              </h1>
+              <p class="max-w-lg text-sm md:text-base text-red-100/90 font-medium leading-relaxed">{{ dynamicSubtitle() }}</p>
+            </div>
+            <button class="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white/90 backdrop-blur-md border border-white/40 text-red-900 font-black tracking-wider text-xs uppercase hover:bg-white hover:scale-105 rounded-[1.25rem] transition-all duration-300 shadow-xl shadow-black/10 active:scale-95 shrink-0 group/btn"
+              (click)="router.navigate(['/student/teachers'])">
+              <svg class="w-5 h-5 group-hover/btn:-rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
+              Book New Session
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Floating Stat tiles ── -->
+        <div class="absolute left-6 right-6 lg:left-12 lg:right-12 -bottom-12 z-30">
+          <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6">
+            <div class="rounded-3xl bg-white/70 dark:bg-card/60 backdrop-blur-3xl shadow-xl shadow-red-900/10 border border-white dark:border-white/5 p-6 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-white dark:hover:bg-card/80 transition-all duration-500 group/stat cursor-default">
+              <p class="text-4xl font-black text-gray-900 dark:text-foreground group-hover/stat:scale-110 transition-transform duration-300">{{ stats()?.total ?? 0 }}</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-2">Total Tickets</p>
+            </div>
+            <div class="rounded-3xl bg-white/70 dark:bg-card/60 backdrop-blur-3xl shadow-xl shadow-emerald-900/10 border border-white dark:border-white/5 p-6 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-white dark:hover:bg-card/80 transition-all duration-500 group/stat cursor-default">
+              <p class="text-4xl font-black text-emerald-600 group-hover/stat:scale-110 transition-transform duration-300 drop-shadow-sm">{{ stats()?.completed ?? 0 }}</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500 mt-2">Completed</p>
+            </div>
+            <div class="rounded-3xl bg-white/70 dark:bg-card/60 backdrop-blur-3xl shadow-xl shadow-blue-900/10 border border-white dark:border-white/5 p-6 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-white dark:hover:bg-card/80 transition-all duration-500 group/stat cursor-default">
+              <p class="text-4xl font-black text-blue-600 group-hover/stat:scale-110 transition-transform duration-300 drop-shadow-sm">{{ stats()?.approved ?? 0 }}</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-blue-500 mt-2">Approved</p>
+            </div>
+            <div class="rounded-3xl bg-white/70 dark:bg-card/60 backdrop-blur-3xl shadow-xl shadow-amber-900/10 border border-white dark:border-white/5 p-6 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-white dark:hover:bg-card/80 transition-all duration-500 group/stat cursor-default">
+              <p class="text-4xl font-black text-amber-500 group-hover/stat:scale-110 transition-transform duration-300 drop-shadow-sm">{{ stats()?.pending ?? 0 }}</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-2">Pending</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      @if (loading()) {
-        <!-- Skeleton row 1 -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-          @for (i of [1,2,3]; track i) {
-            <div class="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
-              <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-              <div class="h-8 bg-gray-200 rounded w-1/3 mb-3"></div>
-              <div class="grid grid-cols-3 gap-2">
-                @for (j of [1,2,3]; track j) {
-                  <div class="h-12 bg-gray-200 rounded-xl"></div>
-                }
+      <!-- ── Body ─────────────────────────────────────────── -->
+      <div class="w-full space-y-8 mt-2 relative z-20 pb-20">
+
+        @if (loading()) {
+          <div class="space-y-6 animate-pulse">
+            <div class="h-32 rounded-[2.5rem] bg-white/50 dark:bg-card/50 border border-white dark:border-white/5"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="h-64 rounded-[2.5rem] bg-white/50 dark:bg-card/50 border border-white dark:border-white/5 md:col-span-2"></div>
+              <div class="h-64 rounded-[2.5rem] bg-white/50 dark:bg-card/50 border border-white dark:border-white/5"></div>
+            </div>
+          </div>
+        }
+
+        @if (!loading()) {
+
+          <!-- ── Next Session Banner ──────────────────────── -->
+          @if (nextBooking()) {
+            <div class="rounded-[2rem] border border-white dark:border-white/5 bg-white/60 dark:bg-card/60 backdrop-blur-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 shadow-xl shadow-red-900/5 hover:-translate-y-1 transition-all duration-500">
+              <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-red-800 to-red-900 flex items-center justify-center shrink-0 shadow-lg shadow-red-900/30">
+                <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
               </div>
+              <div class="flex-1 min-w-0 space-y-1.5">
+                <p class="text-[10px] font-black text-red-700 dark:text-red-400 uppercase tracking-widest flex items-center gap-2">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                  Incoming Session
+                </p>
+                <p class="text-xl font-black text-gray-900 dark:text-foreground truncate tracking-tight">{{ nextBooking()!.teacher_name }}</p>
+                <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+                  {{ nextBooking()!.scheduled_date | date:'fullDate' }} &nbsp;·&nbsp; {{ nextBooking()!.start_time | timeFormat }}
+                  &nbsp;·&nbsp;
+                  @if (nextBooking()!.consultation_type === 'ONLINE') {
+                    <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-md border border-blue-100 text-[10px] uppercase font-black tracking-widest">
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                      </svg>
+                      Online
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-100 text-[10px] uppercase font-black tracking-widest">
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      Face-to-Face
+                    </span>
+                  }
+                </p>
+              </div>
+              <button class="w-full sm:w-auto px-6 py-3 bg-white dark:bg-card/80 border border-gray-100 dark:border-white/5 text-gray-900 dark:text-foreground font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-card/100 hover:shadow-md transition-all shadow-sm active:scale-95 shrink-0"
+                (click)="router.navigate(['/student/my-bookings'])">
+                View Ticket Details
+              </button>
             </div>
           }
-        </div>
-      }
 
-      @if (!loading()) {
-        <!-- ── Row 1: Overview + Booking progress + Status breakdown ── -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+          <!-- ── Row 1: Table (2/3) + Week (1/3) ─────────── -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <!-- Overview card (dark) -->
-          <div class="bg-gray-900 rounded-2xl p-6 text-white">
-            <div class="flex items-center justify-between mb-5">
-              <p class="font-semibold text-sm text-gray-300">Overall Information</p>
-              <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>
-              </svg>
+            <!-- Recent Appointments (Raw Table) -->
+            <div class="lg:col-span-2 bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 overflow-hidden flex flex-col hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">
+              <div class="p-8 border-b border-white/50 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-xl font-black text-gray-900 dark:text-foreground tracking-tight">Recent Appointments</h2>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Your last {{ recentBookings().length }} consultation records</p>
+                </div>
+                <button (click)="router.navigate(['/student/my-bookings'])" class="text-[10px] font-black tracking-widest text-red-700 dark:text-red-400 hover:text-white uppercase flex items-center gap-1.5 transition-all px-4 py-2 bg-white dark:bg-white/5 hover:bg-red-800 dark:hover:bg-red-800 border border-white dark:border-white/5 shadow-sm hover:shadow-lg rounded-xl active:scale-95">
+                  View All History
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex-1 overflow-x-auto p-4 pt-1">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Instructor</th>
+                      <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                      <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Mode</th>
+                      <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (b of recentBookings(); track b.id) {
+                      <tr class="border-b border-white dark:border-white/5 hover:bg-white/50 dark:hover:bg-white/5 transition-colors group cursor-default">
+                        <td class="px-6 py-5 rounded-l-2xl">
+                          <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-[0.8rem] bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/50 text-red-800 dark:text-red-200 flex items-center justify-center font-black text-sm shrink-0 border border-white dark:border-white/5 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                              {{ b.teacher_name.charAt(0) }}
+                            </div>
+                            <span class="font-bold text-gray-900 dark:text-foreground group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">{{ b.teacher_name }}</span>
+                          </div>
+                        </td>
+                        <td class="px-6 py-5 text-gray-500 dark:text-gray-400 font-semibold text-xs">{{ b.scheduled_date | date:'MMM d, y' }}</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-300 font-bold text-xs">
+                          @if (b.consultation_type === 'ONLINE') {
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50/50 text-blue-700 rounded-lg text-[10px] uppercase font-black tracking-widest">
+                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                              </svg>
+                              Online
+                            </span>
+                          } @else {
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50/50 text-emerald-700 rounded-lg text-[10px] uppercase font-black tracking-widest">
+                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              </svg>
+                              F2F
+                            </span>
+                          }
+                        </td>
+                        <td class="px-6 py-5 rounded-r-2xl">
+                          <app-status-badge [status]="b.status" />
+                        </td>
+                      </tr>
+                    }
+                    @if (recentBookings().length === 0) {
+                      <tr>
+                        <td colspan="4">
+                          <div class="py-20 text-center flex flex-col items-center">
+                            <div class="mb-5 w-20 h-20 rounded-[2rem] bg-white dark:bg-card/50 shadow-sm flex items-center justify-center border border-dashed border-gray-200 dark:border-white/10">
+                              <svg class="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                              </svg>
+                            </div>
+                            <p class="font-black text-gray-900 dark:text-foreground text-base">No appointments yet</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1 mb-6">Start by booking your first academic consultation.</p>
+                            <button (click)="router.navigate(['/student/teachers'])" class="text-xs font-black uppercase tracking-widest text-white bg-gray-900 dark:bg-white/10 hover:bg-red-800 dark:hover:bg-red-800 hover:scale-105 active:scale-95 px-8 py-3.5 rounded-xl transition-all shadow-md">Browse Directory</button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <!-- Big numbers -->
-            <div class="flex items-end gap-6 mb-6">
-              <div>
-                <p class="text-4xl font-bold text-white">{{ stats()?.total ?? 0 }}</p>
-                <p class="text-xs text-gray-400 mt-1">Total bookings</p>
+            <!-- Upcoming This Week -->
+            <div class="bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 overflow-hidden flex flex-col hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">
+              <div class="p-8 border-b border-white/50 dark:border-white/10">
+                <h2 class="text-xl font-black text-gray-900 dark:text-foreground tracking-tight">This Week</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">{{ weekRange() }}</p>
               </div>
-              <div>
-                <p class="text-4xl font-bold text-gray-500">{{ stats()?.completed ?? 0 }}</p>
-                <p class="text-xs text-gray-600 mt-1">Completed</p>
+              <div class="flex-1 p-4 overflow-y-auto">
+                @if (upcomingThisWeek().length === 0) {
+                  <div class="flex flex-col items-center justify-center py-16 text-center px-6">
+                    <div class="w-16 h-16 rounded-[1.5rem] bg-white dark:bg-card/50 flex items-center justify-center mb-4 border border-white dark:border-white/5 shadow-md">
+                      <span class="text-3xl opacity-80">⛵</span>
+                    </div>
+                    <p class="font-black text-gray-900 dark:text-foreground text-base">All clear!</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1">No sessions scheduled this week.</p>
+                  </div>
+                }
+                <div class="space-y-2">
+                  @for (b of upcomingThisWeek(); track b.id) {
+                    <div class="px-5 py-4 rounded-2xl border border-transparent hover:bg-white dark:hover:bg-white/5 hover:border-white dark:hover:border-white/10 hover:shadow-sm transition-all duration-300 cursor-pointer flex items-center gap-4 group"
+                      (click)="router.navigate(['/student/my-bookings'])">
+                      <div class="w-12 h-12 rounded-[1rem] flex items-center justify-center text-sm font-black shrink-0 text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-900/30 border border-white dark:border-white/5 shadow-sm group-hover:scale-110 group-hover:bg-red-800 dark:group-hover:bg-red-800 group-hover:text-white transition-all duration-300">
+                        {{ b.teacher_name.charAt(0) }}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm text-gray-900 dark:text-foreground truncate group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">{{ b.teacher_name }}</p>
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">{{ b.scheduled_date | date:'EEE, MMM d' }} · {{ b.start_time | timeFormat }}</p>
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
-            </div>
-
-            <!-- Mini stat cards -->
-            <div class="grid grid-cols-3 gap-3">
-              <div class="bg-gray-800 rounded-xl p-3 text-center">
-                <p class="text-xl font-bold text-yellow-400">{{ stats()?.pending ?? 0 }}</p>
-                <p class="text-xs text-gray-500 mt-1">Pending</p>
-              </div>
-              <div class="bg-gray-800 rounded-xl p-3 text-center">
-                <p class="text-xl font-bold text-blue-400">{{ stats()?.approved ?? 0 }}</p>
-                <p class="text-xs text-gray-500 mt-1">Approved</p>
-              </div>
-              <div class="bg-gray-800 rounded-xl p-3 text-center">
-                <p class="text-xl font-bold text-red-400">{{ stats()?.cancelled ?? 0 }}</p>
-                <p class="text-xs text-gray-500 mt-1">Cancelled</p>
+              <div class="p-4 border-t border-white/50 dark:border-white/10 bg-white/30 dark:bg-black/20 backdrop-blur-md">
+                <a routerLink="/student/calendar" class="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:text-red-800 dark:hover:text-red-400 py-3 transition-colors bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 rounded-xl shadow-sm">
+                  Open Master Calendar
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
 
-          <!-- Booking Progress (bar chart) -->
-          <div class="bg-white rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-5">
-              <div>
-                <p class="font-semibold text-gray-900 text-sm">Booking Progress</p>
-                <div class="flex items-center gap-3 mt-1">
-                  <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
-                    <span class="text-xs text-gray-400">Pending</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span class="text-xs text-gray-400">Approved</span>
-                  </div>
-                </div>
-              </div>
-              <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-              </svg>
-            </div>
+          <!-- ── Row 2: Donut (1/3) + Calendar (1/3) + Quick CTA (1/3) ── -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-            <!-- Bars -->
-            <div class="flex items-end justify-between gap-2 h-32 mb-3">
-              @for (bar of chartBars(); track bar.label) {
-                <div class="flex flex-col items-center gap-1 flex-1">
-                  <div class="w-full flex flex-col justify-end gap-0.5 h-24">
-                    @if (bar.approvedPct > 0) {
-                      <div class="w-full bg-blue-500 rounded-sm transition-all duration-700"
-                        [style.height.%]="bar.approvedPct">
-                      </div>
-                    }
-                    @if (bar.pendingPct > 0) {
-                      <div class="w-full bg-yellow-400 rounded-sm transition-all duration-700"
-                        [style.height.%]="bar.pendingPct">
-                      </div>
-                    }
-                    @if (bar.completedPct > 0) {
-                      <div class="w-full bg-green-500 rounded-sm transition-all duration-700"
-                        [style.height.%]="bar.completedPct">
-                      </div>
-                    }
-                    @if (bar.cancelledPct > 0) {
-                      <div class="w-full bg-red-400 rounded-sm transition-all duration-700"
-                        [style.height.%]="bar.cancelledPct">
-                      </div>
-                    }
-                  </div>
-                  <span class="text-xs text-gray-400">{{ bar.label }}</span>
-                </div>
-              }
-            </div>
-
-            @if ((stats()?.total ?? 0) > 0) {
-              <div class="bg-green-50 rounded-xl px-3 py-2 flex items-center gap-2">
-                <svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <span class="text-xs text-green-700 font-medium">
-                  {{ completionRate() }}% of your sessions completed
-                </span>
-              </div>
-            } @else {
-              <div class="bg-gray-50 rounded-xl px-3 py-2 text-center">
-                <span class="text-xs text-gray-400">No bookings yet — book your first session!</span>
-              </div>
-            }
-          </div>
-
-          <!-- Status breakdown (donut) -->
-          <div class="bg-white rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-5">
-              <p class="font-semibold text-gray-900 text-sm">Status Breakdown</p>
-              <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-              </svg>
-            </div>
-
-            <!-- Donut -->
-            <div class="flex items-center justify-center mb-5">
-              <div class="relative">
-                <svg class="w-28 h-28 -rotate-90" viewBox="0 0 36 36">
-                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f3f4f6" stroke-width="3.5"/>
+            <!-- Status Donut -->
+            <div class="bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 p-8 flex flex-col items-center justify-center relative overflow-hidden hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">
+              <h2 class="text-xl font-black text-gray-900 dark:text-foreground tracking-tight self-start w-full">Resolution Status</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium self-start w-full mb-10">Overall completion {{ completionRate() }}%</p>
+              
+              <div class="relative mb-10 group hover:scale-[1.03] transition-transform duration-500">
+                <svg class="w-48 h-48 -rotate-90 drop-shadow-md" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.9" fill="none" class="text-white stroke-current drop-shadow-sm border-white" stroke-width="4"/>
                   @if (donut().completed > 0) {
-                    <circle cx="18" cy="18" r="15.9" fill="none"
-                      stroke="#22c55e" stroke-width="3.5"
-                      [attr.stroke-dasharray]="donut().completed + ' ' + (100 - donut().completed)"
-                      stroke-dashoffset="0"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"
+                      [attr.stroke-dasharray]="donut().completed + ' ' + (100 - donut().completed)" stroke-dashoffset="0"/>
                   }
                   @if (donut().approved > 0) {
-                    <circle cx="18" cy="18" r="15.9" fill="none"
-                      stroke="#3b82f6" stroke-width="3.5"
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"
                       [attr.stroke-dasharray]="donut().approved + ' ' + (100 - donut().approved)"
                       [attr.stroke-dashoffset]="'-' + donut().completed"/>
                   }
                   @if (donut().pending > 0) {
-                    <circle cx="18" cy="18" r="15.9" fill="none"
-                      stroke="#facc15" stroke-width="3.5"
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"
                       [attr.stroke-dasharray]="donut().pending + ' ' + (100 - donut().pending)"
                       [attr.stroke-dashoffset]="'-' + (donut().completed + donut().approved)"/>
                   }
                   @if (donut().cancelled > 0) {
-                    <circle cx="18" cy="18" r="15.9" fill="none"
-                      stroke="#f87171" stroke-width="3.5"
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round"
                       [attr.stroke-dasharray]="donut().cancelled + ' ' + (100 - donut().cancelled)"
                       [attr.stroke-dashoffset]="'-' + (donut().completed + donut().approved + donut().pending)"/>
                   }
                 </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  @if ((stats()?.total ?? 0) > 0) {
-                    <p class="text-xl font-bold text-gray-900">{{ completionRate() }}%</p>
-                    <p class="text-xs text-gray-400">done</p>
-                  } @else {
-                    <p class="text-xs text-gray-400 text-center px-2">No data</p>
-                  }
+                <div class="absolute inset-0 flex flex-col items-center justify-center p-4 bg-white/30 dark:bg-black/30 backdrop-blur-[2px] rounded-full m-[10px]">
+                  <p class="text-4xl font-black text-gray-900 dark:text-foreground drop-shadow-sm">{{ completionRate() }}%</p>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-1">Yield</p>
                 </div>
               </div>
-            </div>
-
-            <!-- Legend -->
-            <div class="space-y-2">
-              @for (item of donutLegend(); track item.label) {
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full" [style.background]="item.color"></div>
-                    <span class="text-xs text-gray-500">{{ item.label }}</span>
-                  </div>
-                  <span class="text-xs font-semibold text-gray-700">{{ item.value }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Row 2: Recent appointments + Profile card + Goals ── -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-          <!-- Recent appointments (spans 2 cols) -->
-          <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-              <p class="font-semibold text-gray-900 text-sm">Recent Appointments</p>
-              <a routerLink="/student/my-bookings"
-                class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1">
-                View all
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </a>
-            </div>
-
-            <div class="divide-y divide-gray-50">
-              @for (b of recentBookings(); track b.id) {
-                <div class="flex items-center justify-between px-6 py-3.5 hover:bg-gray-50 transition-colors">
-                  <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center
-                                text-sm font-bold text-red-800 flex-shrink-0">
-                      {{ b.teacher_name.charAt(0) }}
+              
+              <div class="w-full space-y-3 px-4">
+                @for (item of donutLegend(); track item.label) {
+                  <div class="flex items-center justify-between text-xs font-semibold">
+                    <div class="flex items-center gap-3">
+                      <span class="w-4 h-4 rounded-xl shrink-0 shadow-inner border border-white dark:border-white/5" [style.background]="item.color"></span>
+                      <span class="text-gray-600 dark:text-gray-300 font-bold">{{ item.label }}</span>
                     </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-900">{{ b.teacher_name }}</p>
-                      <p class="text-xs text-gray-400">
-                        {{ b.scheduled_date }} · {{ b.start_time }} – {{ b.end_time }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs"
-                      [class]="b.consultation_type === 'ONLINE' ? 'text-blue-500' : 'text-gray-400'">
-                      {{ b.consultation_type === 'ONLINE' ? '🌐' : '🏫' }}
-                    </span>
-                    <span class="text-xs font-medium px-2.5 py-1 rounded-lg"
-                      [class.bg-yellow-100]="b.status === 'PENDING'"
-                      [class.text-yellow-800]="b.status === 'PENDING'"
-                      [class.bg-blue-100]="b.status === 'APPROVED'"
-                      [class.text-blue-800]="b.status === 'APPROVED'"
-                      [class.bg-green-100]="b.status === 'COMPLETED'"
-                      [class.text-green-800]="b.status === 'COMPLETED'"
-                      [class.bg-red-100]="b.status === 'CANCELLED'"
-                      [class.text-red-800]="b.status === 'CANCELLED'">
-                      {{ b.status }}
-                    </span>
-                  </div>
-                </div>
-              }
-
-              @if (recentBookings().length === 0) {
-                <div class="px-6 py-12 text-center">
-                  <div class="inline-flex items-center justify-center w-12 h-12 bg-red-50 rounded-2xl mb-3">
-                    <svg class="w-6 h-6 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                  </div>
-                  <p class="text-gray-500 font-medium text-sm">No appointments yet</p>
-                  <p class="text-gray-400 text-xs mt-1 mb-4">Book your first consultation session.</p>
-                  <button (click)="router.navigate(['/student/teachers'])"
-                    class="text-xs bg-red-800 hover:bg-red-700 text-white font-semibold
-                           px-4 py-2 rounded-xl transition-colors">
-                    Browse Teachers
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Right column -->
-          <div class="space-y-4">
-
-            <!-- Profile card -->
-            <div class="bg-white rounded-2xl shadow-sm p-5">
-              <div class="flex items-center gap-3 mb-4">
-                <img [src]="profile()?.picture || 'https://ui-avatars.com/api/?name=' + profile()?.name + '&background=7f1d1d&color=fff'"
-                  class="w-12 h-12 rounded-2xl object-cover border-2 border-red-100" />
-                <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-gray-900 text-sm truncate">{{ profile()?.name }}</p>
-                  <p class="text-xs text-red-700 font-medium">Student</p>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                @for (field of profileFields(); track field.label) {
-                  <div class="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
-                    <p class="text-xs text-gray-400">{{ field.label }}</p>
-                    <p class="text-xs font-medium text-gray-700 text-right max-w-36 truncate">
-                      {{ field.value || '—' }}
-                    </p>
+                    <span class="font-black text-gray-900 dark:text-foreground text-sm">{{ item.value }}</span>
                   </div>
                 }
               </div>
-
-              <a routerLink="/student/profile"
-                class="mt-4 w-full flex items-center justify-center gap-2 border border-gray-200
-                       text-gray-600 hover:bg-gray-50 text-xs font-semibold py-2 rounded-xl transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                Edit Profile
-              </a>
             </div>
 
-            <!-- Quick actions -->
-            <div class="bg-white rounded-2xl shadow-sm p-5">
-              <p class="font-semibold text-gray-900 text-sm mb-3">Quick Actions</p>
-              <div class="space-y-2">
-                <button (click)="router.navigate(['/student/teachers'])"
-                  class="w-full flex items-center justify-between p-3 rounded-xl
-                         hover:bg-red-50 transition-colors group">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center group-hover:bg-red-100 transition-colors">
-                      <svg class="w-3.5 h-3.5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 4v16m8-8H4"/>
-                      </svg>
+            <!-- Mini Calendar -->
+            <div class="bg-white/60 dark:bg-card/60 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-gray-900/5 border border-white dark:border-white/5 flex flex-col hover:border-red-100 dark:hover:border-white/10 hover:shadow-red-900/10 transition-all duration-500">
+              <div class="p-8 pb-4 border-b border-white/50 dark:border-white/10">
+                <h2 class="text-xl font-black text-gray-900 dark:text-foreground tracking-tight">Timeline</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ currentMonthName() }}</p>
+              </div>
+              <div class="px-6 pt-4 flex-1">
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                  @for (d of ['S','M','T','W','T','F','S']; track $index) {
+                    <div class="text-center text-[10px] font-black text-gray-400 dark:text-gray-500 py-2">{{ d }}</div>
+                  }
+                  @for (pad of calendarPadding(); track $index) { <div></div> }
+                  @for (day of calendarDays(); track day.date) {
+                    <div class="aspect-square flex items-center justify-center rounded-xl text-[11px] font-bold relative transition-colors"
+                      [class.bg-red-800]="day.isToday"
+                      [class.text-white]="day.isToday"
+                      [class.text-gray-700]="!day.isToday && !day.hasBooking" [class.dark:text-gray-300]="!day.isToday && !day.hasBooking"
+                      [class.text-red-900]="!day.isToday && day.hasBooking" [class.dark:text-red-400]="!day.isToday && day.hasBooking"
+                      [class.bg-white]="!day.isToday && day.hasBooking" [class.dark:bg-white/10]="!day.isToday && day.hasBooking"
+                      [class.shadow-md]="day.isToday || day.hasBooking"
+                      [class.border]="day.hasBooking && !day.isToday"
+                      [class.border-white]="day.hasBooking && !day.isToday" [class.dark:border-white/5]="day.hasBooking && !day.isToday">
+                      {{ day.date }}
+                      @if (day.hasBooking && !day.isToday) {
+                        <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-sm shadow-red-500"></span>
+                      }
                     </div>
-                    <span class="text-xs font-medium text-gray-700">Book Consultation</span>
+                  }
+                </div>
+              </div>
+              <div class="p-6 pt-2">
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                  <div class="rounded-2xl bg-white dark:bg-card/50 shadow-sm border border-gray-100 dark:border-white/5 p-4 text-center hover:-translate-y-1 transition-transform">
+                    <p class="text-2xl font-black text-gray-900 dark:text-foreground">{{ thisMonthCount() }}</p>
+                    <p class="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">This Month</p>
                   </div>
-                  <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-red-600 transition-colors"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </button>
-
-                <button (click)="router.navigate(['/student/my-bookings'])"
-                  class="w-full flex items-center justify-between p-3 rounded-xl
-                         hover:bg-blue-50 transition-colors group">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <svg class="w-3.5 h-3.5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                    </div>
-                    <span class="text-xs font-medium text-gray-700">My Appointments</span>
+                  <div class="rounded-2xl bg-red-800 shadow-md shadow-red-900/20 border border-red-700 p-4 text-center hover:-translate-y-1 transition-transform">
+                    <p class="text-2xl font-black text-white">{{ upcomingCount() }}</p>
+                    <p class="text-[9px] font-black text-red-200 uppercase tracking-widest mt-1">Upcoming</p>
                   </div>
-                  <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 transition-colors"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </button>
-
-                <button (click)="router.navigate(['/student/profile'])"
-                  class="w-full flex items-center justify-between p-3 rounded-xl
-                         hover:bg-gray-50 transition-colors group">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                      <svg class="w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                      </svg>
-                    </div>
-                    <span class="text-xs font-medium text-gray-700">My Profile</span>
-                  </div>
-                  <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-colors"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </button>
+                </div>
               </div>
             </div>
+
+            <!-- Quick Actions CTA -->
+            <div class="rounded-[2.5rem] bg-gray-900/90 backdrop-blur-3xl p-8 flex flex-col shadow-2xl shadow-gray-900/20 border border-gray-700 relative overflow-hidden group/cta hover:border-gray-600 transition-all duration-500">
+               <!-- Decorative elements -->
+               <div class="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-[40px] pointer-events-none group-hover/cta:scale-110 transition-transform duration-700"></div>
+               <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-red-600/10 rounded-full blur-[50px] pointer-events-none group-hover/cta:bg-red-500/20 transition-colors duration-700"></div>
+               
+               <h2 class="text-xl font-black text-white tracking-tight relative z-10 flex items-center gap-2">
+                 <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                 </svg>
+                 Command Center
+               </h2>
+               <p class="text-xs text-gray-400 font-medium mb-8 relative z-10 mt-1">Fast navigation portals</p>
+               
+               <div class="space-y-4 relative z-10 flex-1 flex flex-col justify-center">
+                 <button class="w-full flex items-center gap-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/15 hover:border-white/20 transition-all duration-300 p-4 text-left group active:scale-95 shadow-lg shadow-black/20"
+                   (click)="router.navigate(['/student/teachers'])">
+                   <div class="w-12 h-12 rounded-[1rem] bg-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500 border border-white/5">
+                     <svg class="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                     </svg>
+                   </div>
+                   <div>
+                     <p class="text-sm font-black text-white tracking-wide">Book a Session</p>
+                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Find an Instructor</p>
+                   </div>
+                 </button>
+                 
+                 <button class="w-full flex items-center gap-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/15 hover:border-white/20 transition-all duration-300 p-4 text-left group active:scale-95 shadow-lg shadow-black/20"
+                   (click)="router.navigate(['/student/my-bookings'])">
+                   <div class="w-12 h-12 rounded-[1rem] bg-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500 border border-white/5">
+                     <svg class="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                     </svg>
+                   </div>
+                   <div>
+                     <p class="text-sm font-black text-white tracking-wide">My Appointments</p>
+                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">View all tickets</p>
+                   </div>
+                 </button>
+                 
+                 <button class="w-full flex items-center gap-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/15 hover:border-white/20 transition-all duration-300 p-4 text-left group active:scale-95 shadow-lg shadow-black/20"
+                   (click)="router.navigate(['/student/calendar'])">
+                   <div class="w-12 h-12 rounded-[1rem] bg-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500 border border-white/5">
+                     <svg class="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                     </svg>
+                   </div>
+                   <div>
+                     <p class="text-sm font-black text-white tracking-wide">Calendar</p>
+                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Monthly overview</p>
+                   </div>
+                 </button>
+               </div>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   `,
 })
 export class StudentDashboardComponent implements OnInit {
   private api = inject(ApiService)
   private auth = inject(AuthService)
-  router       = inject(Router)
+  router = inject(Router)
 
-  loading        = signal(true)
-  stats          = signal<StudentStats | null>(null)
+  loading = signal(true)
+  stats = signal<StudentStats | null>(null)
+  bookings = signal<Booking[]>([])
   recentBookings = signal<Booking[]>([])
-  profile        = signal<User | null>(null)
 
   ngOnInit(): void {
-    let bookingsDone = false
-    let profileDone  = false
-
-    const tryDone = () => {
-      if (bookingsDone && profileDone) this.loading.set(false)
-    }
-
     this.api.getBookings().subscribe({
       next: res => {
         const b = res.data
-        this.recentBookings.set(b.slice(0, 5))
+        this.bookings.set(b)
+        // Sort descending by date & time implicitly via ID or Date string
+        const sorted = [...b].sort((x, y) => {
+          const dX = x.scheduled_date + 'T' + x.start_time
+          const dY = y.scheduled_date + 'T' + y.start_time
+          return dY.localeCompare(dX)
+        })
+        
+        this.recentBookings.set(sorted.slice(0, 5))
         this.stats.set({
-          total:     b.length,
-          pending:   b.filter(x => x.status === 'PENDING').length,
-          approved:  b.filter(x => x.status === 'APPROVED').length,
+          total: b.length,
+          pending: b.filter(x => x.status === 'PENDING').length,
+          approved: b.filter(x => x.status === 'APPROVED').length,
           completed: b.filter(x => x.status === 'COMPLETED').length,
           cancelled: b.filter(x => x.status === 'CANCELLED').length,
         })
-        bookingsDone = true
-        tryDone()
+        this.loading.set(false)
       },
-      error: () => { bookingsDone = true; tryDone() },
+      error: () => this.loading.set(false),
     })
+  }
 
-    this.api.getProfile().subscribe({
-      next: res => {
-        this.profile.set(res.data)
-        profileDone = true
-        tryDone()
-      },
-      error: () => { profileDone = true; tryDone() },
-    })
+  firstName(): string {
+    return this.auth.currentUser()?.name?.split(' ')[0] ?? 'Student'
+  }
+
+  greeting(): string {
+    const h = new Date().getHours()
+    if (h < 12) return 'Good morning'
+    if (h < 18) return 'Good afternoon'
+    return 'Good evening'
+  }
+
+  dynamicSubtitle(): string {
+    const s = this.stats()
+    if (!s) return 'Welcome back to your academic portal.'
+    if (this.nextBooking()) return 'You have an incoming session scheduled. Make sure to prepare!'
+    if (s.pending > 0) return `Waiting on ${s.pending} consultation ${s.pending === 1 ? 'request' : 'requests'} to be approved.`
+    if (s.total === 0) return 'Ready for your first consultation? Book an instructor today.'
+    return "You're all caught up! Take a breather or safely book a new session."
+  }
+
+  nextBooking(): Booking | null {
+    if (!this.stats()) return null
+    // Ideally find the *closest upcoming* APPROVED booking, not just the first one
+    const nowStr = new Date().toISOString().split('T')[0]
+    const upcoming = this.bookings()
+       .filter(b => b.status === 'APPROVED' && b.scheduled_date.split('T')[0] >= nowStr)
+       .sort((a,b) => (a.scheduled_date + 'T' + a.start_time).localeCompare(b.scheduled_date + 'T' + b.start_time))
+    return upcoming[0] ?? null
   }
 
   completionRate(): number {
@@ -452,41 +484,14 @@ export class StudentDashboardComponent implements OnInit {
     return Math.round((s.completed / s.total) * 100)
   }
 
-  profileFields() {
-    const p = this.profile()
-    if (!p) return []
-    return [
-      { label: 'Course',      value: p.course     },
-      { label: 'Year Level',  value: p.year_level },
-      { label: 'Department',  value: p.department },
-      { label: 'Email',       value: p.email      },
-    ]
-  }
-
-  chartBars() {
-    const s = this.stats()
-    if (!s || s.total === 0) {
-      return ['Pend','Appr','Comp','Canc'].map(label => ({
-        label, pendingPct: 0, approvedPct: 0, completedPct: 0, cancelledPct: 0
-      }))
-    }
-    const t = s.total
-    return [
-      { label: 'Pend',  pendingPct: Math.round((s.pending   / t) * 100), approvedPct: 0, completedPct: 0, cancelledPct: 0 },
-      { label: 'Appr',  pendingPct: 0, approvedPct: Math.round((s.approved  / t) * 100), completedPct: 0, cancelledPct: 0 },
-      { label: 'Comp',  pendingPct: 0, approvedPct: 0, completedPct: Math.round((s.completed / t) * 100), cancelledPct: 0 },
-      { label: 'Canc',  pendingPct: 0, approvedPct: 0, completedPct: 0, cancelledPct: Math.round((s.cancelled / t) * 100) },
-    ]
-  }
-
   donut() {
     const s = this.stats()
     if (!s || s.total === 0) return { completed: 0, approved: 0, pending: 0, cancelled: 0 }
     const t = s.total
     return {
       completed: Math.round((s.completed / t) * 100),
-      approved:  Math.round((s.approved  / t) * 100),
-      pending:   Math.round((s.pending   / t) * 100),
+      approved: Math.round((s.approved / t) * 100),
+      pending: Math.round((s.pending / t) * 100),
       cancelled: Math.round((s.cancelled / t) * 100),
     }
   }
@@ -495,10 +500,70 @@ export class StudentDashboardComponent implements OnInit {
     const s = this.stats()
     if (!s) return []
     return [
-      { label: 'Completed', value: s.completed, color: '#22c55e' },
-      { label: 'Approved',  value: s.approved,  color: '#3b82f6' },
-      { label: 'Pending',   value: s.pending,   color: '#facc15' },
-      { label: 'Cancelled', value: s.cancelled, color: '#f87171' },
+      { label: 'Completed', value: s.completed, color: '#10b981' },
+      { label: 'Approved', value: s.approved, color: '#3b82f6' },
+      { label: 'Pending', value: s.pending, color: '#f59e0b' },
+      { label: 'Cancelled', value: s.cancelled, color: '#ef4444' },
     ]
+  }
+
+  currentMonthName(): string {
+    return new Date().toLocaleString('default', { month: 'long', year: 'numeric' })
+  }
+
+  calendarPadding(): number[] {
+    const d = new Date(); d.setDate(1)
+    return Array(d.getDay()).fill(0)
+  }
+
+  calendarDays(): { date: number; isToday: boolean; hasBooking: boolean }[] {
+    const today = new Date()
+    const year = today.getFullYear(); const month = today.getMonth()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1
+      const dateStr = `${year}-${pad(month + 1)}-${pad(day)}`
+      return {
+        date: day,
+        isToday: day === today.getDate(),
+        hasBooking: this.bookings().some(b => b.scheduled_date.split('T')[0] === dateStr),
+      }
+    })
+  }
+
+  thisMonthCount(): number {
+    const today = new Date()
+    const prefix = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+    return this.bookings().filter(b => b.scheduled_date.startsWith(prefix)).length
+  }
+
+  upcomingCount(): number {
+    const nowStr = new Date().toISOString().split('T')[0]
+    return this.bookings().filter(b => (b.status === 'APPROVED' || b.status === 'PENDING') && b.scheduled_date.split('T')[0] >= nowStr).length
+  }
+
+  upcomingThisWeek(): Booking[] {
+    const today = new Date(); const todayDay = today.getDay()
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - todayDay); weekStart.setHours(0, 0, 0, 0)
+    const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 7)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    const startStr = fmt(weekStart); const endStr = fmt(weekEnd)
+    return this.bookings()
+      .filter(b => {
+        const ds = b.scheduled_date.split('T')[0]
+        return (b.status === 'APPROVED' || b.status === 'PENDING') && ds >= startStr && ds < endStr
+      })
+      .sort((a, b) => a.scheduled_date.localeCompare(b.scheduled_date) || a.start_time.localeCompare(b.start_time))
+      .slice(0, 5)
+  }
+
+  weekRange(): string {
+    const today = new Date(); const todayDay = today.getDay()
+    const mon = new Date(today); mon.setDate(today.getDate() - todayDay + 1)
+    const sun = new Date(today); sun.setDate(today.getDate() - todayDay + 7)
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+    return `${mon.toLocaleDateString('en-US', opts)} – ${sun.toLocaleDateString('en-US', opts)}`
   }
 }

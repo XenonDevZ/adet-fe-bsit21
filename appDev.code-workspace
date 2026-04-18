@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "acbs-backend copy",
+			"path": "../acbs-backend copy"
+		},
+		{
+			"name": "acbs-frontend copy",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
