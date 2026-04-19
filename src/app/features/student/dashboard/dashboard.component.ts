@@ -24,13 +24,13 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
     <div class="h-full w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 flex flex-col items-center">
 
       <!-- ── Floating Hero Header ─────────────────────────────────── -->
-      <div class="w-full relative z-10 mb-20 group">
+      <div class="w-full relative z-10 mb-4 lg:mb-20 group">
         <div class="absolute inset-0 bg-gradient-to-r from-red-900 via-red-800 to-red-900 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl shadow-red-900/20 transform group-hover:scale-[1.005] transition-transform duration-700 ease-out overflow-hidden">
            <!-- Subtle inner glow effects -->
            <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 blur-[60px] rotate-[30deg] pointer-events-none"></div>
         </div>
 
-        <div class="relative z-20 px-5 pt-8 pb-20 sm:px-8 sm:pt-12 sm:pb-24 lg:px-16 lg:pt-16 lg:pb-28">
+        <div class="relative z-20 px-5 pt-7 pb-4 sm:px-8 sm:pt-10 sm:pb-6 lg:px-16 lg:pt-14 lg:pb-28">
            <div class="flex flex-col gap-5 sm:gap-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl mb-3 sm:mb-4 shadow-sm">Academic Portal</span>
@@ -49,9 +49,32 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
           </div>
         </div>
 
-        <!-- ── Floating Stat tiles ── -->
-        <div class="absolute left-6 right-6 lg:left-12 lg:right-12 -bottom-12 z-30">
-          <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6">
+        <!-- ── Stat tiles: inline on mobile, floating on desktop ── -->
+        <!-- Mobile/tablet inline (hidden on lg) -->
+        <div class="relative z-20 lg:hidden px-4 sm:px-6 pb-5 sm:pb-6">
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-2xl bg-white/90 dark:bg-card/80 backdrop-blur-xl shadow-lg border border-white dark:border-white/5 py-4 px-2 flex flex-col items-center justify-center text-center">
+              <p class="text-3xl font-black text-gray-900 dark:text-foreground">{{ stats()?.total ?? 0 }}</p>
+              <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-1.5">Total</p>
+            </div>
+            <div class="rounded-2xl bg-white/90 dark:bg-card/80 backdrop-blur-xl shadow-lg border border-white dark:border-white/5 py-4 px-2 flex flex-col items-center justify-center text-center">
+              <p class="text-3xl font-black text-emerald-600">{{ stats()?.completed ?? 0 }}</p>
+              <p class="text-[9px] font-black uppercase tracking-widest text-emerald-500 mt-1.5">Done</p>
+            </div>
+            <div class="rounded-2xl bg-white/90 dark:bg-card/80 backdrop-blur-xl shadow-lg border border-white dark:border-white/5 py-4 px-2 flex flex-col items-center justify-center text-center">
+              <p class="text-3xl font-black text-blue-600">{{ stats()?.approved ?? 0 }}</p>
+              <p class="text-[9px] font-black uppercase tracking-widest text-blue-500 mt-1.5">Approved</p>
+            </div>
+            <div class="rounded-2xl bg-white/90 dark:bg-card/80 backdrop-blur-xl shadow-lg border border-white dark:border-white/5 py-4 px-2 flex flex-col items-center justify-center text-center">
+              <p class="text-3xl font-black text-amber-500">{{ stats()?.pending ?? 0 }}</p>
+              <p class="text-[9px] font-black uppercase tracking-widest text-amber-500 mt-1.5">Pending</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop floating (hidden below lg) -->
+        <div class="hidden lg:block absolute left-12 right-12 -bottom-12 z-30">
+          <div class="w-full mx-auto grid grid-cols-4 gap-6">
             <div class="rounded-3xl bg-white/70 dark:bg-card/60 backdrop-blur-3xl shadow-xl shadow-red-900/10 border border-white dark:border-white/5 p-6 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-white dark:hover:bg-card/80 transition-all duration-500 group/stat cursor-default">
               <p class="text-4xl font-black text-gray-900 dark:text-foreground group-hover/stat:scale-110 transition-transform duration-300">{{ stats()?.total ?? 0 }}</p>
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-2">Total Tickets</p>
@@ -73,7 +96,7 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe'
       </div>
 
       <!-- ── Body ─────────────────────────────────────────── -->
-      <div class="w-full space-y-8 mt-2 relative z-20 pb-20">
+      <div class="w-full space-y-8 mt-0 lg:mt-2 relative z-20 pb-20">
 
         @if (loading()) {
           <div class="space-y-6 animate-pulse">
