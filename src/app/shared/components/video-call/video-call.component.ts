@@ -126,7 +126,7 @@ import { VideoCallService } from '../../../core/services/video-call.service';
         <!-- Remote video (full background) -->
         <div class="flex-1 relative overflow-hidden">
           <video #remoteVideo autoplay playsinline
-            class="absolute inset-0 w-full h-full object-cover scale-x-[-1]"
+            class="absolute inset-0 w-full h-full object-cover"
             [class.hidden]="!videoCall.remoteStream()">
           </video>
 
