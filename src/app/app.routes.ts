@@ -2,6 +2,7 @@ import { Routes } from '@angular/router'
 import { authGuard } from './core/guards/auth.guard'
 import { roleGuard } from './core/guards/role.guard'
 import { profileGuard } from './core/guards/profile.guard'
+import { departmentGuard } from './core/guards/department.guard'
 
 export const routes: Routes = [
   // Public
@@ -72,6 +73,7 @@ export const routes: Routes = [
       },
       {
         path: 'schedule',
+        canActivate: [departmentGuard],
         loadComponent: () =>
           import('./features/teacher/schedule-manager/schedule-manager.component').then(m => m.ScheduleManagerComponent),
       },
@@ -82,6 +84,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
+        canActivate: [departmentGuard],
         loadComponent: () =>
           import('./features/teacher/profile-settings/profile-settings.component').then(m => m.ProfileSettingsComponent),
       },

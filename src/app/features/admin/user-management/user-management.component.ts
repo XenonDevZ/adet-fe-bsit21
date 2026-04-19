@@ -153,17 +153,32 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                   <td class="px-8 py-5">
                     @if (user.role === 'TEACHER') {
                       @if (deptEditing[user.id]) {
-                        <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
-                          <input type="text" [(ngModel)]="deptChanges[user.id]"
-                            placeholder="e.g., College of Engineering"
-                            class="flex-1 min-w-0 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-foreground bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/30 focus:border-red-400 transition-all shadow-sm" />
+                        <div class="flex items-center gap-2 max-w-sm animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+                          <div class="relative flex-1 group/input">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                               <svg class="w-4 h-4 text-gray-400 group-focus-within/input:text-red-800 dark:group-focus-within/input:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                               </svg>
+                            </div>
+                            <input type="text" [(ngModel)]="deptChanges[user.id]"
+                              placeholder="Type department..."
+                              class="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-black uppercase tracking-widest text-gray-900 dark:text-foreground bg-gray-50/50 dark:bg-black/40 focus:outline-none focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400 focus:bg-white dark:focus:bg-black/60 transition-all shadow-inner dark:shadow-none" />
+                          </div>
                           <button (click)="saveDepartment(user.id)" [disabled]="savingDept() === user.id"
-                            class="shrink-0 px-3 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-sm active:scale-95 disabled:opacity-50 transition-all">
-                            {{ savingDept() === user.id ? '...' : 'Save' }}
+                            class="shrink-0 w-9 h-9 flex items-center justify-center bg-gradient-to-br from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 active:scale-95 disabled:opacity-50 transition-all group/btn" 
+                            title="Save">
+                            @if (savingDept() === user.id) {
+                              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                            } @else {
+                              <svg class="w-4.5 h-4.5 group-hover/btn:scale-110 transition-transform drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                              </svg>
+                            }
                           </button>
                           <button (click)="deptEditing[user.id] = false"
-                            class="shrink-0 p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            class="shrink-0 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                            title="Cancel">
+                            <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                           </button>
                         </div>
                       } @else {
