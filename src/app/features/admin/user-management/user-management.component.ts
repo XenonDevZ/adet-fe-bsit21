@@ -154,7 +154,7 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                     @if (user.role === 'TEACHER') {
                       @if (deptEditing[user.id]) {
                         <div class="flex items-center gap-2 max-w-sm animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
-                          <div class="relative flex-1 group/input">
+                          <div class="relative flex-1 group/input min-w-[240px]">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                <svg class="w-4 h-4 text-gray-400 group-focus-within/input:text-red-800 dark:group-focus-within/input:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
