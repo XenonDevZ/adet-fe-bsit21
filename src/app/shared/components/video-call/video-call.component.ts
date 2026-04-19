@@ -1,11 +1,12 @@
 import { Component, inject, ElementRef, viewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VideoCallService } from '../../../core/services/video-call.service';
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   selector: 'app-video-call',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ChatComponent],
   template: `
     <!-- Permission Prompt Modal -->
     @if (videoCall.callState() === 'permission-prompt') {
@@ -282,6 +283,16 @@ import { VideoCallService } from '../../../core/services/video-call.service';
           </button>
         </div>
       </div>
+
+      <!-- In-Call Chat Overlay (Slides in from right) -->
+      <div class="absolute top-0 bottom-0 right-0 w-[26rem] bg-white dark:bg-[#1e1f22] border-l border-gray-100 dark:border-white/5 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-20"
+           [class.translate-x-full]="!videoCall.isChatOpen()"
+           [class.translate-x-0]="videoCall.isChatOpen()">
+        @if (videoCall.bookingId()) {
+           <app-chat class="h-full block" [booking]="$any({ id: videoCall.bookingId(), chat_closed: false, consultation_type: 'ONLINE' })"></app-chat>
+        }
+      </div>
+      
       </div>
     }
 

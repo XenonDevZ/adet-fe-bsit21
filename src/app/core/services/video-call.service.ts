@@ -37,7 +37,7 @@ export class VideoCallService {
   private ws: WebSocket | null = null;
   private peer: Peer | null = null;
   private mediaConnection: MediaConnection | null = null;
-  private currentBookingId: number = 0;
+  bookingId = signal<number>(0);
   private durationTimer: any = null;
 
   /**
@@ -46,7 +46,7 @@ export class VideoCallService {
   connectSignaling(bookingId: number): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
 
-    this.currentBookingId = bookingId;
+    this.bookingId.set(bookingId);
     const token = this.auth.getToken();
     const wsBase = environment.apiUrl.replace('http', 'ws');
     const url = `${wsBase}/ws/video?token=${token}&bookingId=${bookingId}`;
@@ -277,63 +277,26 @@ export class VideoCallService {
    * whatever is available. Falls back progressively.
    */
   private async acquireMedia(): Promise<MediaStream> {
-    // Step 1: Enumerate devices to see what's physically available
-    let hasCamera = false;
-    let hasMic = false;
-
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      hasCamera = devices.some(d => d.kind === 'videoinput');
-      hasMic = devices.some(d => d.kind === 'audioinput');
-    } catch {
-      // enumerateDevices failed — assume both exist and let getUserMedia decide
-      hasCamera = true;
-      hasMic = true;
-    }
-
-    if (!hasCamera && !hasMic) {
-      throw new Error('No camera or microphone detected on this device. Please connect a device and try again.');
-    }
-
-    const audioConstraints = hasMic ? { 
-      echoCancellation: { ideal: true }, 
-      noiseSuppression: { ideal: true }, 
-      autoGainControl: { ideal: true },
-    } : false;
-
-    // Step 2: Try to get whatever is available
-    const constraints: MediaStreamConstraints = {
-      video: hasCamera,
-      audio: audioConstraints,
+    // Aggressively request both by default. Avoid enumerateDevices() as strict mobile browsers 
+    // hide device kinds before permissions are explicitly granted.
+    let constraints: MediaStreamConstraints = {
+      video: { facingMode: 'user' },
+      audio: {
+        echoCancellation: { ideal: true },
+        noiseSuppression: { ideal: true },
+        autoGainControl: { ideal: true }
+      }
     };
 
     try {
       return await navigator.mediaDevices.getUserMedia(constraints);
     } catch (err: any) {
-      // Step 3: If combined request fails, try fallbacks
-      if (hasCamera && hasMic) {
-        // Try audio only
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: audioConstraints });
-          this.isCameraOff.set(true);
-          return stream;
-        } catch { /* fall through */ }
-
-        // Try video only
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-          this.isMuted.set(true);
-          return stream;
-        } catch { /* fall through */ }
-      }
-
-      // All attempts failed — provide a clear message
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        throw new Error('Camera/microphone permission was blocked. Click the camera icon in your browser\'s address bar to allow access, then reload the page.');
-      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-        throw new Error('Your camera or microphone is being used by another app. Close it and try again.');
-      } else {
-        throw new Error(`Could not access media devices: ${err.message || 'Unknown error'}`);
+      // Fallback: If hardware lacks camera, try requesting audio only
+      console.warn('[VideoCall] Full media request failed, attempting audio fallback...', err);
+      try {
+        return await navigator.mediaDevices.getUserMedia({ audio: constraints.audio, video: false });
+      } catch (fallbackErr) {
+        throw new Error('Could not access camera or microphone. Please check your browser permissions.');
       }
     }
   }
