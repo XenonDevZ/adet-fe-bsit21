@@ -1,6 +1,6 @@
 import { Component, inject, signal, HostListener, OnDestroy } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router'
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router'
 import { CommonModule } from '@angular/common'
 import { AuthService } from '../../core/services/auth.service'
 import { ApiService } from '../../core/services/api.service'
@@ -75,7 +75,10 @@ import { ThemeService } from '../../core/services/theme.service'
             }
           </a>
 
-          <a routerLink="/teacher/schedule" routerLinkActive="!bg-gradient-to-r !from-red-900 !to-red-800 !text-white !shadow-lg !shadow-red-900/30 font-black scale-[1.02]"
+          <a routerLink="/teacher/schedule"
+             [class.pointer-events-none]="!departmentSet()"
+             [class.opacity-40]="!departmentSet()"
+             routerLinkActive="!bg-gradient-to-r !from-red-900 !to-red-800 !text-white !shadow-lg !shadow-red-900/30 font-black scale-[1.02]"
              (click)="mobileMenuOpen.set(false)"
              class="flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white hover:shadow-sm hover:-translate-y-0.5 font-bold transition-all duration-300 transform active:scale-95 text-sm group">
             <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,11 +86,19 @@ import { ThemeService } from '../../core/services/theme.service'
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             Manage Schedule
+            @if (!departmentSet()) {
+              <svg class="w-4 h-4 ml-auto text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            }
           </a>
 
           <div class="pt-5 mt-3 border-t border-white/40 dark:border-white/5">
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-3 mb-2">Account</p>
-            <a routerLink="/teacher/profile" routerLinkActive="!bg-gradient-to-r !from-red-900 !to-red-800 !text-white !shadow-lg !shadow-red-900/30 font-black scale-[1.02]"
+            <a routerLink="/teacher/profile"
+               [class.pointer-events-none]="!departmentSet()"
+               [class.opacity-40]="!departmentSet()"
+               routerLinkActive="!bg-gradient-to-r !from-red-900 !to-red-800 !text-white !shadow-lg !shadow-red-900/30 font-black scale-[1.02]"
                (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white hover:shadow-sm hover:-translate-y-0.5 font-bold transition-all duration-300 transform active:scale-95 text-sm group">
               <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,6 +106,11 @@ import { ThemeService } from '../../core/services/theme.service'
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               My Profile
+              @if (!departmentSet()) {
+                <svg class="w-4 h-4 ml-auto text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+              }
             </a>
           </div>
         </nav>
@@ -199,6 +215,25 @@ import { ThemeService } from '../../core/services/theme.service'
 
         <!-- Router outlet -->
         <main class="flex-1 flex flex-col relative w-full pt-4 pb-8 lg:pr-8">
+          @if (!departmentSet() && !loadingDept()) {
+            <!-- Department Pending Banner -->
+            <div class="mx-2 sm:mx-4 lg:mx-8 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 backdrop-blur-xl border border-amber-200 dark:border-amber-800/30 rounded-[2rem] p-6 sm:p-8 shadow-xl shadow-amber-900/5 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-200/30 dark:bg-amber-700/10 rounded-full blur-[50px] pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                  <div class="w-14 h-14 rounded-[1.25rem] bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-center shadow-inner shrink-0">
+                    <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-black text-amber-900 dark:text-amber-300 tracking-tight mb-1">Account Setup Pending</h3>
+                    <p class="text-sm font-medium text-amber-700 dark:text-amber-400/80 leading-relaxed">Your department has not been assigned yet. An administrator needs to configure your department before you can manage your schedule or edit your profile. Your dashboard is still accessible.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
           <router-outlet />
         </main>
 
@@ -214,14 +249,18 @@ export class TeacherLayoutComponent {
   notifService = inject(NotificationService)
   themeService = inject(ThemeService)
   private api = inject(ApiService)
+  private router = inject(Router)
 
   showPanel = signal(false)
   mobileMenuOpen = signal(false)
   pendingCount = signal(0)
+  departmentSet = signal(false)
+  loadingDept = signal(true)
 
   constructor() {
     this.loadPendingCount()
     this.notifService.refresh()
+    this.checkDepartment()
 
     this.api.bookingsChanged$
       .pipe(takeUntilDestroyed())
@@ -235,6 +274,32 @@ export class TeacherLayoutComponent {
     if (window.innerWidth >= 1024) {
       this.mobileMenuOpen.set(false)
     }
+  }
+
+  checkDepartment(): void {
+    const userId = this.auth.currentUser()?.sub
+    if (!userId) { this.loadingDept.set(false); return }
+
+    this.api.getTeachers().subscribe({
+      next: res => {
+        const me = res.data.find(t => t.user_id === userId)
+        const hasDept = !!(me?.department && me.department.trim())
+        this.departmentSet.set(hasDept)
+        this.loadingDept.set(false)
+
+        // If no dept, redirect away from locked routes
+        if (!hasDept) {
+          const url = this.router.url
+          if (url.includes('/teacher/schedule') || url.includes('/teacher/profile')) {
+            this.router.navigate(['/teacher/dashboard'])
+          }
+        }
+      },
+      error: () => {
+        this.departmentSet.set(false)
+        this.loadingDept.set(false)
+      },
+    })
   }
 
   loadPendingCount(): void {

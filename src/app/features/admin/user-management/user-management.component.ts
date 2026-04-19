@@ -84,8 +84,9 @@ import type { User, Role, Teacher } from '../../../core/models/index'
             <thead>
               <tr class="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
                 <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[30%]">User Identity</th>
-                <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[40%]">Access Role</th>
-                <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[30%]">Joined Date</th>
+                <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[30%]">Access Role</th>
+                <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[20%]">Department</th>
+                <th class="text-left px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[20%]">Joined Date</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50 dark:divide-white/5">
@@ -148,6 +149,47 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                     }
                   </td>
 
+                  <!-- Department Assignment (Teachers only) -->
+                  <td class="px-8 py-5">
+                    @if (user.role === 'TEACHER') {
+                      @if (deptEditing[user.id]) {
+                        <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                          <input type="text" [(ngModel)]="deptChanges[user.id]"
+                            placeholder="e.g., College of Engineering"
+                            class="flex-1 min-w-0 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-foreground bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/30 focus:border-red-400 transition-all shadow-sm" />
+                          <button (click)="saveDepartment(user.id)" [disabled]="savingDept() === user.id"
+                            class="shrink-0 px-3 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-sm active:scale-95 disabled:opacity-50 transition-all">
+                            {{ savingDept() === user.id ? '...' : 'Save' }}
+                          </button>
+                          <button (click)="deptEditing[user.id] = false"
+                            class="shrink-0 p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                          </button>
+                        </div>
+                      } @else {
+                        <div class="flex items-center gap-2 group/dept">
+                          @if (getTeacherDept(user.id)) {
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 text-blue-800 dark:text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                              {{ getTeacherDept(user.id) }}
+                            </span>
+                          } @else {
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                              Not Set
+                            </span>
+                          }
+                          <button (click)="openDeptEdit(user.id)"
+                            class="opacity-0 group-hover/dept:opacity-100 p-1.5 text-gray-400 hover:text-red-800 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                          </button>
+                        </div>
+                      }
+                    } @else {
+                      <span class="text-gray-300 dark:text-gray-700 text-xs font-bold">—</span>
+                    }
+                  </td>
+
                   <td class="px-8 py-5">
                     <span class="inline-flex items-center gap-2 text-gray-500 text-xs font-bold">
                        <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,14 +236,18 @@ export class UserManagementComponent implements OnInit {
   presence     = inject(PresenceService)
 
   users         = signal<User[]>([])
+  teachers      = signal<Teacher[]>([])
   loading       = signal(true)
   saving        = signal<number | null>(null)
+  savingDept    = signal<number | null>(null)
   successMsg    = signal<string | null>(null)
   currentUserId = signal<number | null>(null)
 
   search        = ''
   roleFilter    = ''
   roleChanges:  Record<number, Role>   = {}
+  deptChanges:  Record<number, string> = {}
+  deptEditing:  Record<number, boolean> = {}
 
 
   ngOnInit(): void {
@@ -220,7 +266,36 @@ export class UserManagementComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     })
+    // Load teachers to get department info
+    this.api.getTeachers().subscribe({
+      next: res => this.teachers.set(res.data),
+      error: () => {},
+    })
+  }
 
+  getTeacherDept(userId: number): string | null {
+    return this.teachers().find(t => t.user_id === userId)?.department ?? null
+  }
+
+  openDeptEdit(userId: number): void {
+    this.deptChanges[userId] = this.getTeacherDept(userId) ?? ''
+    this.deptEditing[userId] = true
+  }
+
+  saveDepartment(userId: number): void {
+    const dept = (this.deptChanges[userId] ?? '').trim()
+    if (!dept) return
+    this.savingDept.set(userId)
+    this.api.setTeacherDepartment(userId, dept).subscribe({
+      next: () => {
+        this.savingDept.set(null)
+        this.deptEditing[userId] = false
+        this.successMsg.set('Department assigned successfully.')
+        setTimeout(() => this.successMsg.set(null), 3000)
+        this.load()
+      },
+      error: () => this.savingDept.set(null),
+    })
   }
 
   filtered(): User[] {

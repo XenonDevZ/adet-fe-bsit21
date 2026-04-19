@@ -7,7 +7,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { ChatComponent } from '../../../shared/components/chat/chat.component';
 import { ConsultationCountdownComponent } from '../../../shared/components/consultation-countdown/consultation-countdown.component';
 import { SearchService } from '../../../core/services/search.service';
-import type { Booking, Availability } from '../../../core/models/index';
+import type { Booking, Availability, Feedback } from '../../../core/models/index';
 import { BookingDetailComponent } from '../../../shared/components/booking-detail/booking-detail.component';
 import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -271,6 +271,87 @@ import { DatePickerModule } from 'primeng/datepicker';
                              Teacher Reply
                           </p>
                           <p class="text-sm text-red-900 dark:text-red-200 font-bold leading-relaxed">{{ b.teacher_notes }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- ── Feedback Section (Completed Bookings Only) ── -->
+                  @if (b.status === 'COMPLETED') {
+                    <div class="mb-6">
+                      @if (feedbackMap[b.id]?.submitted) {
+                        <!-- Already Submitted - Read Only -->
+                        <div class="bg-gradient-to-br from-amber-50/80 to-yellow-50/60 dark:from-amber-900/20 dark:to-yellow-900/10 backdrop-blur-sm border border-amber-200/60 dark:border-amber-800/30 rounded-[1.5rem] p-5 shadow-sm">
+                          <div class="flex items-center gap-3 mb-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-center shadow-inner">
+                              <svg class="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
+                            <div>
+                              <p class="text-[10px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-widest">Your Rating</p>
+                              <div class="flex gap-0.5 mt-0.5">
+                                @for (star of [1,2,3,4,5]; track star) {
+                                  <svg class="w-4 h-4 transition-colors" [class.text-amber-400]="star <= (feedbackMap[b.id]?.rating ?? 0)" [class.text-gray-200]="star > (feedbackMap[b.id]?.rating ?? 0)" [class.dark:text-gray-700]="star > (feedbackMap[b.id]?.rating ?? 0)" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                }
+                              </div>
+                            </div>
+                            <span class="ml-auto text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-lg border border-amber-200 dark:border-amber-800/50">{{ feedbackMap[b.id]?.rating }}/5</span>
+                          </div>
+                          @if (feedbackMap[b.id]?.comment) {
+                            <p class="text-sm text-amber-900 dark:text-amber-200 font-medium italic leading-relaxed pl-12">"{{ feedbackMap[b.id]?.comment }}"</p>
+                          }
+                        </div>
+                      } @else if (!feedbackMap[b.id]?.loading) {
+                        <!-- Rating Form -->
+                        <div class="bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-white dark:border-white/5 rounded-[1.5rem] p-5 shadow-inner" (click)="$event.stopPropagation()">
+                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            Rate this consultation
+                          </p>
+                          <!-- Stars -->
+                          <div class="flex items-center gap-1.5 mb-4">
+                            @for (star of [1,2,3,4,5]; track star) {
+                              <button
+                                (click)="setRating(b.id, star); $event.stopPropagation()"
+                                (mouseenter)="setHoverRating(b.id, star)"
+                                (mouseleave)="setHoverRating(b.id, 0)"
+                                class="p-1 rounded-lg transition-all duration-200 hover:scale-125 active:scale-90 focus:outline-none"
+                                [class.scale-110]="star <= (feedbackMap[b.id]?.hoverRating || feedbackMap[b.id]?.pendingRating || 0)">
+                                <svg class="w-7 h-7 transition-all duration-200 drop-shadow-sm"
+                                  [class.text-amber-400]="star <= (feedbackMap[b.id]?.hoverRating || feedbackMap[b.id]?.pendingRating || 0)"
+                                  [class.drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]]="star <= (feedbackMap[b.id]?.hoverRating || feedbackMap[b.id]?.pendingRating || 0)"
+                                  [class.text-gray-200]="star > (feedbackMap[b.id]?.hoverRating || feedbackMap[b.id]?.pendingRating || 0)"
+                                  [class.dark:text-gray-700]="star > (feedbackMap[b.id]?.hoverRating || feedbackMap[b.id]?.pendingRating || 0)"
+                                  viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                              </button>
+                            }
+                            @if (feedbackMap[b.id]?.pendingRating) {
+                              <span class="ml-2 text-sm font-black text-amber-600 dark:text-amber-400">{{ ratingLabel(feedbackMap[b.id]?.pendingRating ?? 0) }}</span>
+                            }
+                          </div>
+                          <!-- Comment -->
+                          @if (feedbackMap[b.id]?.pendingRating) {
+                            <textarea
+                              [value]="feedbackMap[b.id]?.pendingComment ?? ''"
+                              (input)="setComment(b.id, $any($event.target).value)"
+                              (click)="$event.stopPropagation()"
+                              placeholder="Share your experience (optional)..."
+                              rows="2"
+                              class="w-full bg-white/60 dark:bg-white/5 border border-white dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-300 dark:focus:ring-amber-800 focus:border-amber-300 transition-all resize-none mb-3 shadow-inner"></textarea>
+                            <button
+                              (click)="submitFeedback(b); $event.stopPropagation()"
+                              [disabled]="feedbackMap[b.id]?.submitting"
+                              class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                              @if (feedbackMap[b.id]?.submitting) {
+                                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                                Submitting...
+                              } @else {
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                Submit Rating
+                              }
+                            </button>
+                          }
                         </div>
                       }
                     </div>
@@ -558,6 +639,18 @@ export class MyBookingsComponent implements OnInit {
 
   chatReady: Record<number, boolean> = {};
 
+  // ── Feedback state ────────────────────────────
+  feedbackMap: Record<number, {
+    loading: boolean;
+    submitted: boolean;
+    rating: number | null;
+    comment: string | null;
+    pendingRating: number;
+    pendingComment: string;
+    hoverRating: number;
+    submitting: boolean;
+  }> = {};
+
   // ── Signals for highly efficient computed state ──
   upcoming = computed(() => this.bookings().filter(b => b.status === 'PENDING' || b.status === 'APPROVED'));
   past     = computed(() => this.bookings().filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED'));
@@ -591,8 +684,83 @@ export class MyBookingsComponent implements OnInit {
 
   load(): void {
     this.api.getBookings().subscribe({
-      next: (res) => { this.bookings.set(res.data); this.loading.set(false); },
-      error: () =>   this.loading.set(false),
+      next: (res) => {
+        this.bookings.set(res.data);
+        this.loading.set(false);
+        // Auto-load feedback for completed bookings
+        res.data.filter(b => b.status === 'COMPLETED').forEach(b => this.loadFeedback(b.id));
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  // ── Feedback Methods ─────────────────────────
+  loadFeedback(bookingId: number): void {
+    if (this.feedbackMap[bookingId]) return;
+    this.feedbackMap[bookingId] = {
+      loading: true, submitted: false, rating: null, comment: null,
+      pendingRating: 0, pendingComment: '', hoverRating: 0, submitting: false,
+    };
+    this.api.getBookingFeedback(bookingId).subscribe({
+      next: (res) => {
+        const mine = res.data.find((f: Feedback) => f.reviewer_id !== undefined);
+        if (mine) {
+          this.feedbackMap[bookingId] = {
+            ...this.feedbackMap[bookingId],
+            loading: false, submitted: true,
+            rating: mine.rating, comment: mine.comment,
+          };
+        } else {
+          this.feedbackMap[bookingId] = { ...this.feedbackMap[bookingId], loading: false };
+        }
+      },
+      error: () => {
+        this.feedbackMap[bookingId] = { ...this.feedbackMap[bookingId], loading: false };
+      },
+    });
+  }
+
+  setRating(bookingId: number, rating: number): void {
+    if (!this.feedbackMap[bookingId]) return;
+    this.feedbackMap[bookingId] = { ...this.feedbackMap[bookingId], pendingRating: rating };
+  }
+
+  setHoverRating(bookingId: number, rating: number): void {
+    if (!this.feedbackMap[bookingId]) return;
+    this.feedbackMap[bookingId] = { ...this.feedbackMap[bookingId], hoverRating: rating };
+  }
+
+  setComment(bookingId: number, comment: string): void {
+    if (!this.feedbackMap[bookingId]) return;
+    this.feedbackMap[bookingId] = { ...this.feedbackMap[bookingId], pendingComment: comment };
+  }
+
+  ratingLabel(rating: number): string {
+    const labels: Record<number, string> = {
+      1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Great', 5: 'Excellent',
+    };
+    return labels[rating] ?? '';
+  }
+
+  submitFeedback(booking: Booking): void {
+    const fb = this.feedbackMap[booking.id];
+    if (!fb || !fb.pendingRating) return;
+    this.feedbackMap[booking.id] = { ...fb, submitting: true };
+
+    this.api.submitFeedback(booking.id, {
+      rating: fb.pendingRating,
+      comment: fb.pendingComment || undefined,
+    }).subscribe({
+      next: () => {
+        this.feedbackMap[booking.id] = {
+          ...this.feedbackMap[booking.id],
+          submitting: false, submitted: true,
+          rating: fb.pendingRating, comment: fb.pendingComment || null,
+        };
+      },
+      error: () => {
+        this.feedbackMap[booking.id] = { ...this.feedbackMap[booking.id], submitting: false };
+      },
     });
   }
 

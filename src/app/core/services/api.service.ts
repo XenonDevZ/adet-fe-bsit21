@@ -41,6 +41,10 @@ export class ApiService {
     return this.http.patch<ApiResponse<User>>(`${this.base}/users/${id}/role`, { role });
   }
 
+  setTeacherDepartment(userId: number, department: string) {
+    return this.http.patch<ApiResponse<unknown>>(`${this.base}/users/${userId}/department`, { department });
+  }
+
   // ── Teachers ───────────────────────────────────────────
   getTeachers() {
     return this.http.get<ApiResponse<Teacher[]>>(`${this.base}/teachers`);
