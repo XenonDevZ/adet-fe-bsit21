@@ -255,6 +255,12 @@ export class VideoCallService {
         }
       };
 
+      if (isLocal && this.localAnalyserTimer) {
+        clearInterval(this.localAnalyserTimer);
+      } else if (!isLocal && this.remoteAnalyserTimer) {
+        clearInterval(this.remoteAnalyserTimer);
+      }
+
       const timer = setInterval(checkLevel, 100);
       if (isLocal) {
         this.localAnalyserTimer = timer;
@@ -289,7 +295,11 @@ export class VideoCallService {
       throw new Error('No camera or microphone detected on this device. Please connect a device and try again.');
     }
 
-    const audioConstraints = hasMic ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true } : false;
+    const audioConstraints = hasMic ? { 
+      echoCancellation: { ideal: true }, 
+      noiseSuppression: { ideal: true }, 
+      autoGainControl: { ideal: true },
+    } : false;
 
     // Step 2: Try to get whatever is available
     const constraints: MediaStreamConstraints = {
