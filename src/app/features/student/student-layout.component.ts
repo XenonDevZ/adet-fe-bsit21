@@ -39,8 +39,8 @@ import { ThemeService } from '../../core/services/theme.service'
               <img src="/assets/acbs-logo.png" alt="ACBS" class="w-full h-full object-contain drop-shadow-sm" />
             </div>
             <div>
-              <p class="font-black text-gray-900 dark:text-foreground text-[17px] tracking-tight leading-none mb-1 group-hover:text-red-900 dark:group-hover:text-white transition-colors">ACBS Portal</p>
-              <p class="text-[10px] font-bold text-red-800 uppercase tracking-widest leading-none">Liceo de Cagayan</p>
+              <p class="font-black text-gray-900 dark:text-foreground text-[17px] tracking-tight leading-none mb-1 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">ACBS Portal</p>
+              <p class="text-[10px] font-bold text-red-800 dark:text-red-400 uppercase tracking-widest leading-none">Liceo de Cagayan</p>
             </div>
           </div>
         </div>
