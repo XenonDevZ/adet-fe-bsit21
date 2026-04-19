@@ -76,6 +76,13 @@ import type { User, Role, Teacher } from '../../../core/models/index'
           {{ successMsg() }}
         </div>
       }
+      
+      @if (errorMsg()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3 mb-4 flex items-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          {{ errorMsg() }}
+        </div>
+      }
 
       <!-- Table -->
       <div class="bg-white/80 dark:bg-card backdrop-blur-xl rounded-[2rem] shadow-sm dark:shadow-none border border-white dark:border-white/5 overflow-hidden">
@@ -256,6 +263,7 @@ export class UserManagementComponent implements OnInit {
   saving        = signal<number | null>(null)
   savingDept    = signal<number | null>(null)
   successMsg    = signal<string | null>(null)
+  errorMsg      = signal<string | null>(null)
   currentUserId = signal<number | null>(null)
 
   search        = ''
@@ -263,7 +271,6 @@ export class UserManagementComponent implements OnInit {
   roleChanges:  Record<number, Role>   = {}
   deptChanges:  Record<number, string> = {}
   deptEditing:  Record<number, boolean> = {}
-
 
   ngOnInit(): void {
     this.currentUserId.set(this.auth.currentUser()?.sub ?? null)
@@ -299,7 +306,15 @@ export class UserManagementComponent implements OnInit {
 
   saveDepartment(userId: number): void {
     const dept = (this.deptChanges[userId] ?? '').trim()
-    if (!dept) return
+    this.errorMsg.set(null);
+    this.successMsg.set(null);
+    
+    if (!dept) {
+      this.errorMsg.set('Please type a department name before saving.');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+
     this.savingDept.set(userId)
     this.api.setTeacherDepartment(userId, dept).subscribe({
       next: () => {
@@ -309,7 +324,11 @@ export class UserManagementComponent implements OnInit {
         setTimeout(() => this.successMsg.set(null), 3000)
         this.load()
       },
-      error: () => this.savingDept.set(null),
+      error: (err) => {
+        this.savingDept.set(null)
+        this.errorMsg.set(err.error?.error || 'Failed to update department.');
+        setTimeout(() => this.errorMsg.set(null), 4000)
+      },
     })
   }
 
