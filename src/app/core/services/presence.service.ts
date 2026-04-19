@@ -11,8 +11,22 @@ export class PresenceService {
   constructor(private authService: AuthService) {
     effect(() => {
       const user = this.authService.currentUser();
-      if (user) {
+      if (user && document.visibilityState === 'visible') {
         this.connect();
+      } else {
+        this.disconnect();
+      }
+    });
+
+    // Instantly go offline when closing the tab/window
+    window.addEventListener('beforeunload', () => {
+      this.disconnect();
+    });
+
+    // Instantly go offline when switching tabs, and online when coming back
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (this.authService.currentUser()) this.connect();
       } else {
         this.disconnect();
       }
