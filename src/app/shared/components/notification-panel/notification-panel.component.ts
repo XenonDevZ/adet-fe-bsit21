@@ -104,12 +104,12 @@ import { NotificationService } from '../../../core/services/notification.service
 
               <!-- Content -->
               <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-800 leading-snug"
+                <p class="text-sm text-gray-800 dark:text-gray-100 leading-snug"
                   [class.font-bold]="!notif.is_read"
                   [class.font-medium]="notif.is_read">
                   {{ notif.message }}
                 </p>
-                <p class="text-[11px] text-gray-400 font-semibold mt-1">
+                <p class="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mt-1">
                   {{ timeAgo(notif.created_at) }}
                 </p>
               </div>
@@ -125,8 +125,8 @@ import { NotificationService } from '../../../core/services/notification.service
 
       <!-- Footer -->
       @if (service.notifications().length > 0 && !service.loading()) {
-        <div class="px-5 py-3 border-t border-gray-100 bg-gray-50/60">
-          <p class="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/60 dark:bg-white/5">
+          <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold text-center uppercase tracking-widest">
             {{ service.unreadCount() > 0 ? service.unreadCount() + ' unread' : 'All caught up' }}
             · {{ service.notifications().length }} total
           </p>

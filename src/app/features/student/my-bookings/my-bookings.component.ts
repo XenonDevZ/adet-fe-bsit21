@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PresenceService } from '../../../core/services/presence.service';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -680,7 +681,14 @@ export class MyBookingsComponent implements OnInit {
     return list;
   });
 
-  ngOnInit(): void { this.load(); }
+  presence = inject(PresenceService);
+
+  ngOnInit(): void {
+    this.load();
+    this.presence.refreshEvents.subscribe(() => {
+      this.load();
+    });
+  }
 
   load(): void {
     this.api.getBookings().subscribe({

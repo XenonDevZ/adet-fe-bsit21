@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PresenceService } from '../../../core/services/presence.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
@@ -455,8 +456,13 @@ export class PendingBookingsComponent implements OnInit {
     { label: 'Cancelled', value: 'CANCELLED' },
   ];
 
+  presence = inject(PresenceService);
+
   ngOnInit(): void {
     this.load();
+    this.presence.refreshEvents.subscribe(() => {
+      this.load();
+    });
   }
 
   selectBooking(booking: Booking): void {

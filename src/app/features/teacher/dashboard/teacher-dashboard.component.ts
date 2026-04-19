@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PresenceService } from '../../../core/services/presence.service';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -300,8 +301,13 @@ export class TeacherDashboardComponent implements OnInit {
   loading  = signal(true);
   acting   = signal<number | null>(null);
 
+  presence = inject(PresenceService);
+
   ngOnInit(): void {
     this.load();
+    this.presence.refreshEvents.subscribe(() => {
+      this.load();
+    });
   }
 
   load(): void {

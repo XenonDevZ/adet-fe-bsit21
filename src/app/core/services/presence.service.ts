@@ -2,11 +2,14 @@ import { Injectable, effect, signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 
+import { Subject } from 'rxjs';
+
 @Injectable({ providedIn: 'root' })
 export class PresenceService {
   private ws: WebSocket | null = null;
   
   public onlineUsers = signal<Set<number>>(new Set());
+  public refreshEvents = new Subject<void>();
 
   constructor(private authService: AuthService) {
     effect(() => {
@@ -66,6 +69,9 @@ export class PresenceService {
               newSet.delete(data.userId);
               return newSet;
             });
+            break;
+          case 'notification_refresh':
+            this.refreshEvents.next();
             break;
         }
       } catch (e) {

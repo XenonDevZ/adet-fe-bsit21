@@ -3,9 +3,12 @@ import { ApiService } from './api.service';
 import { Notification } from '../models/index';
 import { interval, startWith, switchMap, catchError, of } from 'rxjs';
 
+import { PresenceService } from './presence.service';
+
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private api = inject(ApiService);
+  private presence = inject(PresenceService);
 
   notifications = signal<Notification[]>([]);
   loading       = signal(false);
@@ -15,8 +18,13 @@ export class NotificationService {
   );
 
   constructor() {
-    // Poll every 30s. catchError inside switchMap keeps the stream alive on errors.
-    interval(30_000).pipe(
+    // Real-time Push hook! Instantly fetches new notifications upon server ping.
+    this.presence.refreshEvents.subscribe(() => {
+      this.refresh();
+    });
+
+    // Fallback Background Poll every 60s
+    interval(60_000).pipe(
       startWith(0),
       switchMap(() =>
         this.api.getAllNotifications().pipe(
