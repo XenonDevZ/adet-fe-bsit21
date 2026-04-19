@@ -102,23 +102,23 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                   <!-- Identity -->
                   <td class="px-8 py-5">
                     <div class="flex items-center gap-4">
-                      <div class="relative">
+                      <div class="relative shrink-0 flex-none w-11 h-11">
                         @if (user.picture && !imgErrors[user.id]) {
                           <img [src]="user.picture"
-                            class="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-105 transition-transform duration-300"
+                            class="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-105 transition-transform duration-300 relative z-10"
                             (error)="imgErrors[user.id] = true" />
                         } @else {
-                          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-red-900 to-red-800 border-2 border-white shadow-sm flex items-center justify-center text-white text-sm font-black tracking-widest uppercase group-hover:scale-105 transition-transform duration-300">
+                          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-red-900 to-red-800 border-2 border-white shadow-sm flex items-center justify-center text-white text-sm font-black tracking-widest uppercase group-hover:scale-105 transition-transform duration-300 relative z-10">
                             {{ user.name.charAt(0) }}
                           </div>
                         }
-                         <div class="absolute -bottom-1 -right-0.5 w-3.5 h-3.5 border-2 border-white rounded-full transition-colors duration-300 shadow-sm"
+                         <div class="absolute -bottom-1 -right-0.5 w-3.5 h-3.5 border-2 border-white rounded-full transition-colors duration-300 shadow-sm z-20"
                               [class.bg-green-400]="presence.onlineUsers().has(user.id)"
                               [class.bg-gray-300]="!presence.onlineUsers().has(user.id)"
                               [class.shadow-[0_0_8px_rgba(74,222,128,0.8)]]="presence.onlineUsers().has(user.id)">
                          </div>
                       </div>
-                      <div>
+                      <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
                            <p class="font-black text-gray-900 dark:text-foreground tracking-tight">{{ user.name }}</p>
                            @if (user.id === currentUserId()) {
