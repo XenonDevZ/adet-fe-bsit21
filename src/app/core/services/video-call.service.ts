@@ -402,7 +402,15 @@ export class VideoCallService {
         break;
 
       case 'call:ended':
-        this.cleanup();
+        if (this.mediaConnection) {
+          this.mediaConnection.close();
+          this.mediaConnection = null;
+        }
+        this.remoteStream.set(null);
+        // Switch back to waiting state so they can wait for the person to reconnect
+        if (this.callState() === 'connected' || this.callState() === 'connecting') {
+           this.callState.set('calling');
+        }
         break;
     }
   }

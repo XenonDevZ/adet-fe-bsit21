@@ -167,11 +167,21 @@ export class HeaderSearchComponent implements OnInit {
     }
   }
 
+  private searchTimeout: any;
+
   updateQuery(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-    this.searchService.globalQuery.set(input.value);
-    this.selectedIndex.set(0); // Reset selection when typing
+    const val = input.value;
+    
+    // Visually update the input field instantly
+    this.searchQuery.set(val);
+    
+    // Evaluate the heavy OmniSearch logic on a delay
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.searchService.globalQuery.set(val);
+      this.selectedIndex.set(0); // Reset selection
+    }, 250);
   }
 
   clearSearch(event: Event) {
