@@ -341,7 +341,6 @@ export class VideoCallService {
 
   private setupMediaConnection(call: MediaConnection): void {
     if (this.mediaConnection) {
-      // Close any existing dual-connections to prevent ghost audio echo
       this.mediaConnection.close();
     }
     this.mediaConnection = call;
@@ -354,12 +353,22 @@ export class VideoCallService {
     });
 
     call.on('close', () => {
-      this.cleanup();
+      // Just drop the remote user, don't trigger a full localized cleanup
+      this.remoteStream.set(null);
+      this.mediaConnection = null;
+      if (this.callState() === 'connected' || this.callState() === 'connecting') {
+        this.callState.set('calling');
+      }
     });
 
     call.on('error', (err) => {
       console.error('[VideoCall] Media connection error:', err);
-      this.cleanup();
+      // Cleanly fallback to waiting
+      this.remoteStream.set(null);
+      this.mediaConnection = null;
+      if (this.callState() === 'connected' || this.callState() === 'connecting') {
+        this.callState.set('calling');
+      }
     });
   }
 
@@ -422,6 +431,9 @@ export class VideoCallService {
   }
 
   private startDurationTimer(): void {
+    if (this.durationTimer) {
+      clearInterval(this.durationTimer);
+    }
     this.callDuration.set(0);
     this.durationTimer = setInterval(() => {
       this.callDuration.update(d => d + 1);
