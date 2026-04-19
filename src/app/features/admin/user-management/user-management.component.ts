@@ -103,9 +103,15 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                   <td class="px-8 py-5">
                     <div class="flex items-center gap-4">
                       <div class="relative">
-                        <img [src]="user.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=7f1d1d&color=fff'"
-                          class="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-105 transition-transform duration-300"
-                          (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=7f1d1d&color=fff'" />
+                        @if (user.picture && !imgErrors[user.id]) {
+                          <img [src]="user.picture"
+                            class="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-105 transition-transform duration-300"
+                            (error)="imgErrors[user.id] = true" />
+                        } @else {
+                          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-red-900 to-red-800 border-2 border-white shadow-sm flex items-center justify-center text-white text-sm font-black tracking-widest uppercase group-hover:scale-105 transition-transform duration-300">
+                            {{ user.name.charAt(0) }}
+                          </div>
+                        }
                          <div class="absolute -bottom-1 -right-0.5 w-3.5 h-3.5 border-2 border-white rounded-full transition-colors duration-300 shadow-sm"
                               [class.bg-green-400]="presence.onlineUsers().has(user.id)"
                               [class.bg-gray-300]="!presence.onlineUsers().has(user.id)"
@@ -268,9 +274,10 @@ export class UserManagementComponent implements OnInit {
 
   search        = ''
   roleFilter    = ''
-  roleChanges:  Record<number, Role>   = {}
-  deptChanges:  Record<number, string> = {}
+  roleChanges:  Record<number, Role>    = {}
+  deptChanges:  Record<number, string>  = {}
   deptEditing:  Record<number, boolean> = {}
+  imgErrors:    Record<number, boolean> = {}
 
   ngOnInit(): void {
     this.currentUserId.set(this.auth.currentUser()?.sub ?? null)
