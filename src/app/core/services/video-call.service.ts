@@ -363,21 +363,24 @@ export class VideoCallService {
     });
 
     call.on('close', () => {
-      // Just drop the remote user, don't trigger a full localized cleanup
-      this.remoteStream.set(null);
-      this.mediaConnection = null;
-      if (this.callState() === 'connected' || this.callState() === 'connecting') {
-        this.callState.set('calling');
+      // Only drop the UI if THIS connection is still the active one
+      if (this.mediaConnection === call) {
+        this.remoteStream.set(null);
+        this.mediaConnection = null;
+        if (this.callState() === 'connected' || this.callState() === 'connecting') {
+          this.callState.set('calling');
+        }
       }
     });
 
     call.on('error', (err) => {
       console.error('[VideoCall] Media connection error:', err);
-      // Cleanly fallback to waiting
-      this.remoteStream.set(null);
-      this.mediaConnection = null;
-      if (this.callState() === 'connected' || this.callState() === 'connecting') {
-        this.callState.set('calling');
+      if (this.mediaConnection === call) {
+        this.remoteStream.set(null);
+        this.mediaConnection = null;
+        if (this.callState() === 'connected' || this.callState() === 'connecting') {
+          this.callState.set('calling');
+        }
       }
     });
   }
