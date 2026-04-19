@@ -155,14 +155,14 @@ import type { User, Role, Teacher } from '../../../core/models/index'
                       @if (deptEditing[user.id]) {
                         <div class="flex items-center gap-2 max-w-sm animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
                           <div class="relative flex-1 group/input min-w-[240px]">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                               <svg class="w-4 h-4 text-gray-400 group-focus-within/input:text-red-800 dark:group-focus-within/input:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                               <svg class="w-4 h-4 text-gray-400 group-focus-within/input:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                </svg>
                             </div>
                             <input type="text" [(ngModel)]="deptChanges[user.id]"
-                              placeholder="Type department..."
-                              class="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-black uppercase tracking-widest text-gray-900 dark:text-foreground bg-gray-50/50 dark:bg-black/40 focus:outline-none focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400 focus:bg-white dark:focus:bg-black/60 transition-all shadow-inner dark:shadow-none" />
+                              placeholder="e.g. College of Engineering"
+                              class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-white/20 rounded-lg text-sm font-medium text-gray-900 dark:text-foreground bg-white dark:bg-black/20 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-400 focus:bg-white dark:focus:bg-black/40 transition-all shadow-inner" />
                           </div>
                           <button (click)="saveDepartment(user.id)" [disabled]="savingDept() === user.id"
                             class="shrink-0 w-9 h-9 flex items-center justify-center bg-gradient-to-br from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 active:scale-95 disabled:opacity-50 transition-all group/btn" 
