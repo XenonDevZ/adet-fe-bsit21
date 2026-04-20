@@ -39,22 +39,46 @@ export class VideoCallService {
   private mediaConnection: MediaConnection | null = null;
   bookingId = signal<number>(0);
   private durationTimer: any = null;
+  private signalingReconnectTimer: any = null;
+  private signalingRetries = 0;
+  private signalingMaxRetries = 10;
+  private isIntentionalDisconnect = false;
 
   /**
    * Connect to the video signaling WebSocket for a booking
    */
   connectSignaling(bookingId: number): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+    // Don't reconnect if already open for the same booking
+    if (
+      this.ws &&
+      this.ws.readyState === WebSocket.OPEN &&
+      this.bookingId() === bookingId
+    ) return;
 
+    // Close any existing connection cleanly before reconnecting
+    if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
+      this.isIntentionalDisconnect = true; // prevents auto-reconnect on this close
+      this.ws.close();
+    }
+
+    this.isIntentionalDisconnect = false;
+    this.signalingRetries = 0;
     this.bookingId.set(bookingId);
+    this._openSignalingSocket(bookingId);
+  }
+
+  private _openSignalingSocket(bookingId: number): void {
     const token = this.auth.getToken();
     const wsBase = environment.apiUrl.replace('http', 'ws');
     const url = `${wsBase}/ws/video?token=${token}&bookingId=${bookingId}`;
 
+    console.log(`[VideoCall] Opening signaling socket (attempt ${this.signalingRetries + 1})`);
     this.ws = new WebSocket(url);
 
     this.ws.onopen = () => {
       console.log('[VideoCall] Signaling connected');
+      this.signalingRetries = 0;
+      clearTimeout(this.signalingReconnectTimer);
     };
 
     this.ws.onmessage = (event) => {
@@ -64,17 +88,41 @@ export class VideoCallService {
 
     this.ws.onclose = () => {
       console.log('[VideoCall] Signaling disconnected');
+      // Only auto-reconnect if: we didn't intentionally close AND we're not in a full active call
+      if (!this.isIntentionalDisconnect && this.callState() !== 'connected') {
+        this._scheduleSignalingReconnect(bookingId);
+      }
     };
 
-    this.ws.onerror = () => {
-      console.error('[VideoCall] Signaling error');
+    this.ws.onerror = (e) => {
+      console.error('[VideoCall] Signaling error', e);
     };
+  }
+
+  private _scheduleSignalingReconnect(bookingId: number): void {
+    if (this.signalingRetries >= this.signalingMaxRetries) {
+      console.warn('[VideoCall] Max signaling reconnect attempts reached.');
+      return;
+    }
+    // Exponential backoff: 1s, 2s, 4s, 8s... capped at 30s
+    const delay = Math.min(1000 * Math.pow(2, this.signalingRetries), 30000);
+    console.log(`[VideoCall] Reconnecting signaling in ${delay}ms...`);
+    this.signalingRetries++;
+    clearTimeout(this.signalingReconnectTimer);
+    this.signalingReconnectTimer = setTimeout(() => {
+      // Only reconnect if still relevant (booking unchanged, call not active)
+      if (this.bookingId() === bookingId && this.callState() === 'idle') {
+        this._openSignalingSocket(bookingId);
+      }
+    }, delay);
   }
 
   /**
    * Disconnect from the signaling WebSocket
    */
   disconnectSignaling(): void {
+    this.isIntentionalDisconnect = true;
+    clearTimeout(this.signalingReconnectTimer);
     this.ws?.close();
     this.ws = null;
   }

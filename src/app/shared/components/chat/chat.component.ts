@@ -2,6 +2,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   inject,
   signal,
   Input,
@@ -91,11 +92,13 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
       }
 
       <!-- Messages Area -->
+      <div class="flex-1 min-h-0 relative">
       <div #scrollContainer 
            (dragover)="onDragOver($event)" 
            (dragleave)="onDragLeave($event)" 
            (drop)="onDrop($event)"
-           class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 bg-transparent relative z-0 scroll-smooth">
+           (scroll)="onScroll()"
+           class="h-full overflow-y-auto p-5 sm:p-6 space-y-4 bg-transparent relative z-0 scroll-smooth">
         
         @if (messages().length === 0 && connected()) {
           <div class="flex flex-col items-center justify-center h-full text-center p-8 space-y-5 animate-in fade-in zoom-in-95 duration-700">
@@ -224,6 +227,19 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
         }
       </div>
 
+      <!-- Scroll to bottom FAB -->
+      @if (showScrollBtn()) {
+        <button
+          (click)="scrollToBottomSmooth()"
+          class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-white dark:bg-[#2b2d31] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-lg hover:shadow-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-800 dark:hover:text-red-300 hover:border-red-200 dark:hover:border-red-900/50 transition-all active:scale-95 animate-in slide-in-from-bottom-2 duration-200">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/>
+          </svg>
+          New messages
+        </button>
+      }
+      </div>
+
       <!-- Image preview modal -->
       @if (previewImage()) {
         <div class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in" (click)="previewImage.set(null)">
@@ -313,7 +329,7 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
     </div>
   `,
 })
-export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterViewChecked {
   @Input() booking!: Booking;
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
@@ -331,9 +347,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   text = '';
   fileBaseUrl = environment.apiUrl;
+  showScrollBtn = signal(false);
   private ws: WebSocket | null = null;
   private typingTimer: any = null;
   private shouldScroll = false;
+  private userScrolledUp = false;
   private retryLimit = 5;
   private retries = 0;
 
@@ -363,11 +381,45 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.videoCallService.showPermissionPrompt();
   }
 
+  ngAfterViewInit(): void {
+    // Attach scroll listener after view is ready
+    const el = this.scrollContainer?.nativeElement;
+    if (el) {
+      el.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    }
+  }
+
   ngAfterViewChecked(): void {
     if (this.shouldScroll) {
-      this.scrollToBottom();
+      // Only auto-scroll if the user hasn't manually scrolled up
+      if (!this.userScrolledUp) {
+        this.scrollToBottom();
+      } else {
+        // Show the "new messages" button instead
+        this.showScrollBtn.set(true);
+      }
       this.shouldScroll = false;
     }
+  }
+
+  onScroll(): void {
+    const el = this.scrollContainer?.nativeElement;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    // Consider "scrolled up" if more than 120px from the bottom
+    this.userScrolledUp = distanceFromBottom > 120;
+    if (!this.userScrolledUp) {
+      this.showScrollBtn.set(false);
+    }
+  }
+
+  scrollToBottomSmooth(): void {
+    try {
+      const el = this.scrollContainer.nativeElement;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+      this.showScrollBtn.set(false);
+      this.userScrolledUp = false;
+    } catch { }
   }
 
   ngOnDestroy(): void {
@@ -569,6 +621,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const el = this.scrollContainer.nativeElement;
       el.scrollTop = el.scrollHeight;
     } catch { }
+  }
+
+  private scrollToBottomFn(): void {
+    this.scrollToBottom();
   }
 
   isImage(type: string | null): boolean {
