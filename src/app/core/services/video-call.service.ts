@@ -478,6 +478,12 @@ export class VideoCallService {
         break;
 
       case 'call:ended':
+        // If we already fully ended our side (idle), ignore echoed call:ended
+        // signals that arrive after our signaling socket reconnects.
+        // Without this guard: A ends → reconnects WS → B ends → call:ended
+        // reaches A again → "Partner left" toast → infinite loop.
+        if (this.callState() === 'idle') break;
+
         // Only drop REMOTE media — the receiver keeps their own camera/mic.
         // They can still click "End Call" themselves to fully leave.
         this.stopRingtone();
