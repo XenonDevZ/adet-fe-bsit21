@@ -245,6 +245,7 @@ export class VideoCallService {
    * Reject an incoming call
    */
   rejectCall(): void {
+    this.stopRingtone();
     this.sendSignal({ type: 'call:reject' });
     this.incomingCall.set(null);
     this.callState.set('idle');
