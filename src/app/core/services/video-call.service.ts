@@ -370,6 +370,7 @@ export class VideoCallService {
           callerId: data.callerId,
         });
         this.callState.set('incoming');
+        this.playRingtone();
         break;
 
       case 'call:accepted':
@@ -454,5 +455,63 @@ export class VideoCallService {
     this.audioContext = null;
     clearInterval(this.localAnalyserTimer);
     clearInterval(this.remoteAnalyserTimer);
+
+    this.stopRingtone();
+  }
+
+  // ── Ringtone Synthesizer ──────────────────────────
+
+  private ringtoneInterval: any = null;
+  private ringtoneAudioCtx: AudioContext | null = null;
+
+  private playRingtone(): void {
+    this.stopRingtone(); // ensure clean slate
+    if (!this.ringtoneAudioCtx) {
+      this.ringtoneAudioCtx = new AudioContext();
+    }
+    
+    // Play immediately and repeat every 4 seconds
+    this.synthesizeRing();
+    this.ringtoneInterval = setInterval(() => {
+      this.synthesizeRing();
+    }, 4000);
+  }
+
+  private synthesizeRing(): void {
+    if (!this.ringtoneAudioCtx) return;
+    const ctx = this.ringtoneAudioCtx;
+    
+    // Create dual-tone frequencies mimicking a modern digital bell
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.value = 440; // A4
+    
+    osc2.type = 'sine';
+    osc2.frequency.value = 480; // slight dissonance for alert
+
+    // Smooth envelope to prevent popping
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05); // quick fade in
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime + 1.2); // ring duration
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.4); // fade out
+
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc1.start(ctx.currentTime);
+    osc2.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 1.5);
+    osc2.stop(ctx.currentTime + 1.5);
+  }
+
+  private stopRingtone(): void {
+    if (this.ringtoneInterval) {
+      clearInterval(this.ringtoneInterval);
+      this.ringtoneInterval = null;
+    }
   }
 }
