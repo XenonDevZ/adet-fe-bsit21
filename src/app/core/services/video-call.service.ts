@@ -437,6 +437,9 @@ export class VideoCallService {
   private handleSignal(data: any): void {
     switch (data.type) {
       case 'call:incoming':
+        // Already connected — ignore any replayed call:incoming (e.g. WS reconnect while in call)
+        if (this.callState() === 'connected') break;
+
         // Auto-accept: both sides clicked Start simultaneously.
         // Send our acceptance signal AND make the actual PeerJS call.
         if ((this.callState() === 'calling' || this.callState() === 'connecting') && this.peer && this.localStream()) {
