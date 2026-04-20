@@ -165,7 +165,8 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
               <!-- Avatar — hide if same sender as previous non-system msg -->
               @if (i === 0 || messages()[i-1].sender_id !== msg.sender_id || messages()[i-1].is_system) {
                 <img
-                  [src]="msg.sender_picture || 'https://ui-avatars.com/api/?name=' + msg.sender_name + '&background=' + (msg.sender_id === currentUserId() ? '7f1d1d' : '374151') + '&color=fff&bold=true'"
+                  [src]="msg.sender_picture || 'https://ui-avatars.com/api/?name=' + msg.sender_name.split(' ').join('+') + '&background=' + (msg.sender_id === currentUserId() ? '7f1d1d' : '374151') + '&color=fff&bold=true'"
+                  (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + msg.sender_name.split(' ').join('+') + '&background=' + (msg.sender_id === currentUserId() ? '7f1d1d' : '374151') + '&color=fff&bold=true'"
                   class="w-7 h-7 rounded-lg object-cover flex-shrink-0 self-end shadow-sm opacity-90"
                 />
               } @else {

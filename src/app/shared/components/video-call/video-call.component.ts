@@ -84,7 +84,8 @@ import { ChatComponent } from '../chat/chat.component';
             <div class="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping"></div>
             <div class="absolute inset-2 rounded-full bg-emerald-400/10 animate-[ping_1.5s_ease-in-out_infinite_0.5s]"></div>
             <img
-              [src]="videoCall.incomingCall()!.callerPicture || 'https://ui-avatars.com/api/?name=' + videoCall.incomingCall()!.callerName + '&background=831b1b&color=fff'"
+              [src]="videoCall.incomingCall()!.callerPicture || 'https://ui-avatars.com/api/?name=' + videoCall.incomingCall()!.callerName.split(' ').join('+') + '&background=831b1b&color=fff'"
+              (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + videoCall.incomingCall()!.callerName.split(' ').join('+') + '&background=831b1b&color=fff'"
               class="relative w-28 h-28 rounded-full object-cover border-4 border-white shadow-xl z-10"
             />
           </div>
