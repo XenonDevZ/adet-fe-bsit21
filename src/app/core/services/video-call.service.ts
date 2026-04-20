@@ -230,7 +230,11 @@ export class VideoCallService {
         this.audioContext = new AudioContext();
       }
       
-      const source = this.audioContext.createMediaStreamSource(stream);
+      // CRITICAL FIX: Clone the stream before connecting to Web Audio API!
+      // Otherwise Safari/Chrome will violently mute the actual <video> element playback!
+      const clonedStream = stream.clone();
+      
+      const source = this.audioContext.createMediaStreamSource(clonedStream);
       const analyser = this.audioContext.createAnalyser();
       analyser.fftSize = 256;
       analyser.smoothingTimeConstant = 0.4;
