@@ -88,8 +88,10 @@ export class VideoCallService {
 
     this.ws.onclose = () => {
       console.log('[VideoCall] Signaling disconnected');
-      // Only auto-reconnect if: we didn't intentionally close AND we're not in a full active call
-      if (!this.isIntentionalDisconnect && this.callState() !== 'connected') {
+      // Always reconnect unless we deliberately disconnected (e.g. navigating away)
+      // This handles the case where the socket drops mid-call or between calls
+      if (!this.isIntentionalDisconnect) {
+        this.signalingRetries = 0; // reset retries on each new close so second calls work
         this._scheduleSignalingReconnect(bookingId);
       }
     };
@@ -110,8 +112,9 @@ export class VideoCallService {
     this.signalingRetries++;
     clearTimeout(this.signalingReconnectTimer);
     this.signalingReconnectTimer = setTimeout(() => {
-      // Only reconnect if still relevant (booking unchanged, call not active)
-      if (this.bookingId() === bookingId && this.callState() === 'idle') {
+      // Reconnect unless a new booking was selected or we're mid-call
+      const notInActiveCall = this.callState() !== 'connected' && this.callState() !== 'connecting' && this.callState() !== 'calling';
+      if (this.bookingId() === bookingId && notInActiveCall) {
         this._openSignalingSocket(bookingId);
       }
     }, delay);
@@ -196,6 +199,9 @@ export class VideoCallService {
   async acceptCall(): Promise<void> {
     const incoming = this.incomingCall();
     if (!incoming) return;
+
+    // Stop ringtone immediately when user taps Accept
+    this.stopRingtone();
 
     try {
       this.errorMessage.set(null);
@@ -440,15 +446,25 @@ export class VideoCallService {
         break;
 
       case 'call:ended':
+        this.stopRingtone();
         if (this.mediaConnection) {
           this.mediaConnection.close();
           this.mediaConnection = null;
         }
+        this.stopLocalStream();
+        this.peer?.destroy();
+        this.peer = null;
         this.remoteStream.set(null);
-        // Switch back to waiting state so they can wait for the person to reconnect
-        if (this.callState() === 'connected' || this.callState() === 'connecting') {
-           this.callState.set('calling');
-        }
+        this.incomingCall.set(null);
+        clearInterval(this.durationTimer);
+        this.durationTimer = null;
+        this.callDuration.set(0);
+        this.isMuted.set(false);
+        this.isCameraOff.set(false);
+        this.isLocalTalking.set(false);
+        this.isRemoteTalking.set(false);
+        // Return to idle so the UI is fresh and signaling can reconnect for next call
+        this.callState.set('idle');
         break;
     }
   }
