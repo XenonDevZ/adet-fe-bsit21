@@ -182,7 +182,8 @@ import { VideoCallService } from '../../../core/services/video-call.service';
                   <div class="flex items-start justify-between gap-4 mb-6">
                     <div class="flex items-center gap-5">
                       <img
-                        [src]="b.teacher_picture || 'https://ui-avatars.com/api/?name=' + b.teacher_name + '&background=831b1b&color=fff'"
+                        [src]="b.teacher_picture || 'https://ui-avatars.com/api/?name=' + b.teacher_name.split(' ').join('+') + '&background=831b1b&color=fff'"
+                        (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + b.teacher_name.split(' ').join('+') + '&background=831b1b&color=fff'"
                         [alt]="b.teacher_name"
                         class="w-16 h-16 rounded-[1.25rem] object-cover border-[4px] border-white dark:border-black/50 shadow-lg group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500"/>
                       <div>
@@ -409,7 +410,8 @@ import { VideoCallService } from '../../../core/services/video-call.service';
               <div class="shrink-0 bg-white/80 dark:bg-[#2b2d31] border-b border-gray-200 dark:border-white/5 px-5 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <img
-                    [src]="selectedBooking()!.teacher_picture || 'https://ui-avatars.com/api/?name=' + selectedBooking()!.teacher_name + '&background=831b1b&color=fff'"
+                    [src]="selectedBooking()!.teacher_picture || 'https://ui-avatars.com/api/?name=' + selectedBooking()!.teacher_name.split(' ').join('+') + '&background=831b1b&color=fff'"
+                    (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + selectedBooking()!.teacher_name.split(' ').join('+') + '&background=831b1b&color=fff'"
                     [alt]="selectedBooking()!.teacher_name"
                     class="w-10 h-10 rounded-2xl object-cover border-2 border-white dark:border-black/50 shadow-md"/>
                   <div class="flex-1 min-w-0">

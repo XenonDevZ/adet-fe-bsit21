@@ -54,7 +54,8 @@ import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
                 <div class="px-8 pb-8 pt-4">
                   <div class="flex flex-col items-center -mt-14 mb-4 relative z-10">
                     <img
-                      [src]="teacher()!.picture || 'https://ui-avatars.com/api/?name=' + teacher()!.name + '&background=831b1b&color=fff'"
+                      [src]="teacher()!.picture || 'https://ui-avatars.com/api/?name=' + teacher()!.name.split(' ').join('+') + '&background=831b1b&color=fff'"
+                      (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + teacher()!.name.split(' ').join('+') + '&background=831b1b&color=fff'"
                       class="w-20 h-20 rounded-2xl border-[4px] border-white/90 dark:border-black/50 object-cover shadow-lg group-hover:scale-110 group-hover:rotate-2 transition-all duration-500 bg-white dark:bg-card"/>
                   </div>
                   <div class="text-center">

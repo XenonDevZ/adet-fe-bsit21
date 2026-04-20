@@ -150,7 +150,8 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge'
                 <!-- Avatar with robust depth -->
                 <div class="relative inline-block mb-5">
                   <img
-                    [src]="teacher.picture || 'https://ui-avatars.com/api/?name=' + teacher.name + '&background=831b1b&color=fff'"
+                    [src]="teacher.picture || 'https://ui-avatars.com/api/?name=' + teacher.name.split(' ').join('+') + '&background=831b1b&color=fff'"
+                    (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + teacher.name.split(' ').join('+') + '&background=831b1b&color=fff'"
                     [alt]="teacher.name"
                     class="w-28 h-28 rounded-[1.5rem] object-cover border-[6px] border-white/90 dark:border-black/50 drop-shadow-lg group-hover/card:scale-110 group-hover/card:rotate-2 transition-all duration-500 bg-white dark:bg-card"/>
                   

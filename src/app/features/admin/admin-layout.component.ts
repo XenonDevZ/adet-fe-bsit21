@@ -92,9 +92,9 @@ import { ThemeService } from '../../core/services/theme.service'
         <div class="px-5 py-5 border-t border-white/50 dark:border-white/5 bg-white/40 dark:bg-transparent backdrop-blur-md rounded-b-[2rem]">
           <div class="bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-[1.25rem] p-3 flex items-center justify-between border border-white dark:border-white/5 shadow-sm dark:shadow-none hover:shadow-md dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300">
             <div class="flex items-center gap-3 min-w-0">
-              <img [src]="auth.currentUser()?.picture || 'https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name || 'Admin')"
+              <img [src]="auth.currentUser()?.picture || 'https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name?.split(' ')?.join('+') || 'Admin') + '&background=7f1d1d&color=fff'"
                 class="w-10 h-10 rounded-[0.8rem] object-cover border-2 border-white dark:border-white/10 shadow-sm"
-                (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name || 'Admin') + '&background=7f1d1d&color=fff'" />
+                (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name?.split(' ')?.join('+') || 'Admin') + '&background=7f1d1d&color=fff'" />
               <div class="min-w-0">
                 <p class="text-xs font-black text-gray-900 dark:text-foreground truncate">{{ (auth.currentUser()?.name || 'Admin').split(' ')[0] }}</p>
                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Administrator</p>
@@ -176,9 +176,9 @@ import { ThemeService } from '../../core/services/theme.service'
             
             <button class="relative group outline-none cursor-default">
               <div class="absolute inset-0 bg-red-900 rounded-[1rem] blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-              <img [src]="auth.currentUser()?.picture || 'https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name || 'Admin')"
+              <img [src]="auth.currentUser()?.picture || 'https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name?.split(' ')?.join('+') || 'Admin') + '&background=7f1d1d&color=fff'"
                 class="relative w-9 h-9 rounded-xl object-cover border-2 border-white shadow-sm transition-transform duration-300"
-                (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name || 'Admin') + '&background=7f1d1d&color=fff'" />
+                (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + (auth.currentUser()?.name?.split(' ')?.join('+') || 'Admin') + '&background=7f1d1d&color=fff'" />
             </button>
           </div>
         </header>
