@@ -244,8 +244,8 @@ export class StudentLayoutComponent {
   private probeActiveCalls() {
     if (this.videoCallService.callState() !== 'idle') return; // Don't disrupt ongoing module connects
     
-    this.api.getStudentBookings().subscribe({
-      next: (res) => {
+    this.api.getBookings().subscribe({
+      next: (res: { data: any[] }) => {
         const liveBooking = res.data.find((b: any) => 
           b.status === 'APPROVED' && 
           b.consultation_type === 'ONLINE' && 
