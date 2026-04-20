@@ -22,6 +22,9 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
   selector: 'app-chat',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  host: {
+    style: 'display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;'
+  },
   template: `
     <div [class]="videoCallService.isChatOpen() && videoCallService.callState() !== 'idle' 
              ? 'fixed z-[9999] right-0 top-0 bottom-0 w-[340px] shadow-[-20px_0_60px_rgba(0,0,0,0.6)] transition-all animate-in slide-in-from-right duration-300 pointer-events-auto bg-[#111213] border-l border-white/5 overflow-hidden flex flex-col' 
@@ -50,9 +53,15 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
            <div class="relative">
              <div class="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-white/20 shadow-lg">
                @if (currentUserId() === booking.teacher_id) {
-                 <img [src]="booking.student_picture || 'https://ui-avatars.com/api/?name=' + booking.student_name + '&background=7f1d1d&color=fff&bold=true'" class="w-full h-full object-cover" />
+                 <img
+                   [src]="booking.student_picture || avatarUrl(booking.student_name)"
+                   (error)="$any($event.target).src = avatarUrl(booking.student_name)"
+                   class="w-full h-full object-cover" />
                } @else {
-                 <img [src]="booking.teacher_picture || 'https://ui-avatars.com/api/?name=' + booking.teacher_name + '&background=7f1d1d&color=fff&bold=true'" class="w-full h-full object-cover" />
+                 <img
+                   [src]="booking.teacher_picture || avatarUrl(booking.teacher_name)"
+                   (error)="$any($event.target).src = avatarUrl(booking.teacher_name)"
+                   class="w-full h-full object-cover" />
                }
              </div>
              <!-- Status dot -->
@@ -361,6 +370,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
   private userScrolledUp = false;
   private retryLimit = 5;
   private retries = 0;
+
+  avatarUrl(name: string): string {
+    const safe = encodeURIComponent((name || 'User').trim());
+    return `https://ui-avatars.com/api/?name=${safe}&background=7f1d1d&color=fff&bold=true&size=128`;
+  }
 
   currentUserId(): number {
     return this.auth.currentUser()?.sub ?? 0;

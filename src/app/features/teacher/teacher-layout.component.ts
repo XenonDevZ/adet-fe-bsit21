@@ -271,24 +271,24 @@ export class TeacherLayoutComponent {
       })
 
     // ── Global Incoming Call Listener for Teachers ──
-    // Teachers receive calls from anywhere in their portal, not just in the chat view
+    // Probe immediately on load, then every 15s for fast detection
     this.probeActiveCalls();
     setInterval(() => {
       this.probeActiveCalls();
-    }, 45000);
+    }, 15000);
   }
 
   private probeActiveCalls(): void {
     if (this.videoCallService.callState() !== 'idle') return;
 
     this.api.getBookings().subscribe({
-      next: (res) => {
+      next: (res: { data: any[] }) => {
         const liveBooking = res.data.find((b: any) =>
           b.status === 'APPROVED' &&
           b.consultation_type === 'ONLINE' &&
           !b.chat_closed &&
           this.isLive(b.scheduled_date, b.start_time, b.end_time)
-        );
+        ) as any;
         if (liveBooking && this.videoCallService.bookingId() !== liveBooking.id) {
           this.videoCallService.connectSignaling(liveBooking.id);
         }
@@ -300,15 +300,23 @@ export class TeacherLayoutComponent {
     const today = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     const localDate = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+
+    // Normalize: strip any time component from the date
     const dStr = dateStr.split('T')[0];
     if (dStr !== localDate) return false;
-    const toMins = (t: string) => {
-      const [h, rest] = t.split(':');
-      const [m] = rest.split(' ');
-      return parseInt(h, 10) * 60 + parseInt(m, 10);
+
+    // Parse HH:MM:SS or HH:MM — always split by ':'
+    const toMins = (t: string): number => {
+      const parts = t.split(':');
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     };
+
     const nowMins = today.getHours() * 60 + today.getMinutes();
-    return nowMins >= (toMins(start) - 5) && nowMins <= toMins(end);
+    const startMins = toMins(start);
+    const endMins = toMins(end);
+
+    // Unlock 5 minutes before start
+    return nowMins >= (startMins - 5) && nowMins <= endMins;
   }
 
   @HostListener('window:resize')

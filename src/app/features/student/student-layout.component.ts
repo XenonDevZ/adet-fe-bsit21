@@ -232,11 +232,10 @@ export class StudentLayoutComponent {
     this.notifService.refresh()
 
     // ── Global Network Probing for Incoming Video Calls ──
-    // Ensures a stable connection line exists across the entire portal backbone
     this.probeActiveCalls();
     setInterval(() => {
       this.probeActiveCalls();
-    }, 45000); // 45s heartbeat check
+    }, 15000); // 15s heartbeat for fast detection
   }
 
   // 1. Fetches lightweight booking index. 2. Tests against strict time boundaries.
@@ -260,34 +259,26 @@ export class StudentLayoutComponent {
     });
   }
 
-  // Pure function strict date bounds collision math
+  // Pure function: parse HH:MM:SS (24h) time strings and check live window
   private isLive(dateStr: string, start: string, end: string): boolean {
     const today = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     const localDate = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
 
-    // Compare date
     const dStr = dateStr.split('T')[0];
     if (dStr !== localDate) return false;
 
-    // Compare time via absolute minutes
-    const toMins = (t: string) => {
+    // Times come as HH:MM:SS (24h) from the backend
+    const toMins = (t: string): number => {
       const parts = t.split(':');
-      let h = parseInt(parts[0], 10);
-      const mStr = parts[1].split(' ');
-      const m = parseInt(mStr[0], 10);
-      if (mStr[1]) {
-        if (mStr[1] === 'PM' && h !== 12) h += 12;
-        if (mStr[1] === 'AM' && h === 12) h = 0;
-      }
-      return h * 60 + m;
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     };
 
     const startMins = toMins(start);
     const endMins = toMins(end);
     const nowMins = today.getHours() * 60 + today.getMinutes();
 
-    // The boundary unlocks up to 5 minutes early, stays unlocked via end_time boundaries
+    // Unlock 5 minutes before start
     return nowMins >= (startMins - 5) && nowMins <= endMins;
   }
 
