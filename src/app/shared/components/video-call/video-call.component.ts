@@ -147,9 +147,11 @@ import { ChatComponent } from '../chat/chat.component';
                 </div>
               </div>
               <p class="text-white/80 text-lg font-black tracking-tight mb-1">
-                {{ videoCall.callState() === 'calling' ? 'Calling...' : 'Connecting...' }}
+                {{ videoCall.callState() === 'calling' ? (videoCall.peerLeftMessage() ? 'Partner left' : 'Calling...') : 'Connecting...' }}
               </p>
-              <p class="text-white/30 text-xs font-bold uppercase tracking-widest">Waiting for response</p>
+              <p class="text-white/30 text-xs font-bold uppercase tracking-widest">
+                {{ videoCall.peerLeftMessage() ? 'End call when ready' : 'Waiting for response' }}
+              </p>
             </div>
           }
 
@@ -173,6 +175,14 @@ import { ChatComponent } from '../chat/chat.component';
                 </div>
               </div>
             }
+          }
+
+          <!-- Partner left toast -->
+          @if (videoCall.peerLeftMessage()) {
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 bg-black/70 backdrop-blur-xl border border-white/10 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl animate-in slide-in-from-top-3 fade-in duration-300">
+              <div class="w-2 h-2 rounded-full bg-red-400 shrink-0"></div>
+              {{ videoCall.peerLeftMessage() }}
+            </div>
           }
 
           <!-- Local video PiP -->

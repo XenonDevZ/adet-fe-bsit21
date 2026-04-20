@@ -29,6 +29,7 @@ export class VideoCallService {
   incomingCall = signal<IncomingCallData | null>(null);
   callDuration = signal(0);
   errorMessage = signal<string | null>(null);
+  peerLeftMessage = signal<string | null>(null);
 
   private audioContext: AudioContext | null = null;
   private localAnalyserTimer: any = null;
@@ -215,9 +216,18 @@ export class VideoCallService {
       this.peer.on('open', (peerId) => {
         this.sendSignal({ type: 'call:accept', peerId });
 
-        // Call the initiator
+        // Call the initiator via PeerJS
         const call = this.peer!.call(incoming.callerPeerId, stream);
         this.setupMediaConnection(call);
+      });
+
+      // Also handle if the initiator tries to call us back (defensive)
+      this.peer.on('call', (call) => {
+        call.answer(stream);
+        // Only override active connection if we don't already have one
+        if (!this.remoteStream()) {
+          this.setupMediaConnection(call);
+        }
       });
 
       this.incomingCall.set(null);
@@ -241,7 +251,8 @@ export class VideoCallService {
   }
 
   /**
-   * End the current call
+   * End MY side of the call — local cleanup only.
+   * The other person is NOT forced out; they'll see "partner left" and can end themselves.
    */
   endCall(): void {
     this.sendSignal({ type: 'call:end' });
@@ -365,6 +376,23 @@ export class VideoCallService {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          // TURN servers for NAT traversal (when STUN alone fails)
+          {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+          },
+          {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+          },
+          {
+            urls: 'turns:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+          },
         ],
       },
     });
@@ -409,10 +437,13 @@ export class VideoCallService {
   private handleSignal(data: any): void {
     switch (data.type) {
       case 'call:incoming':
-        // If the user happens to already be in the VC waiting for the other person
-        // (i.e. both sides clicked "Join Video Call"), seamlessly auto-accept the connection
+        // Auto-accept: both sides clicked Start simultaneously.
+        // Send our acceptance signal AND make the actual PeerJS call.
         if ((this.callState() === 'calling' || this.callState() === 'connecting') && this.peer && this.localStream()) {
            this.sendSignal({ type: 'call:accept', peerId: this.peer.id });
+           // Actually call the other peer — without this the connection never forms
+           const call = this.peer.call(data.callerPeerId, this.localStream()!);
+           this.setupMediaConnection(call);
            this.callState.set('connecting');
            return;
         }
@@ -428,11 +459,12 @@ export class VideoCallService {
         break;
 
       case 'call:accepted':
-        // The other party accepted — call them via PeerJS
-        if (this.peer && this.localStream()) {
+        // The accepter has already called us via PeerJS directly.
+        // Our peer.on('call') handler (set up in confirmCall) will answer it.
+        // Do NOT call peer.call() here — that would override the working connection
+        // with a second call that the accepter has no handler for.
+        if (this.callState() === 'calling') {
           this.callState.set('connecting');
-          const call = this.peer.call(data.accepterPeerId, this.localStream()!);
-          this.setupMediaConnection(call);
         }
         break;
 
@@ -446,25 +478,29 @@ export class VideoCallService {
         break;
 
       case 'call:ended':
+        // Only drop REMOTE media — the receiver keeps their own camera/mic.
+        // They can still click "End Call" themselves to fully leave.
         this.stopRingtone();
         if (this.mediaConnection) {
           this.mediaConnection.close();
           this.mediaConnection = null;
         }
-        this.stopLocalStream();
+        // Destroy the peer so stale peer state doesn't interfere with next call.
+        // The next call will create a fresh peer regardless.
         this.peer?.destroy();
         this.peer = null;
         this.remoteStream.set(null);
-        this.incomingCall.set(null);
+        this.isRemoteTalking.set(false);
         clearInterval(this.durationTimer);
         this.durationTimer = null;
         this.callDuration.set(0);
-        this.isMuted.set(false);
-        this.isCameraOff.set(false);
-        this.isLocalTalking.set(false);
-        this.isRemoteTalking.set(false);
-        // Return to idle so the UI is fresh and signaling can reconnect for next call
-        this.callState.set('idle');
+        this.incomingCall.set(null);
+        // Show who left, then stay on the call screen so the receiver can end themselves
+        this.peerLeftMessage.set(
+          data.endedBy ? `${data.endedBy} left the call` : 'Other participant left the call'
+        );
+        this.callState.set('calling'); // back to waiting state, UI shows "partner left"
+        setTimeout(() => this.peerLeftMessage.set(null), 5000);
         break;
     }
   }
@@ -505,6 +541,7 @@ export class VideoCallService {
 
     this.callState.set('idle');
     this.callDuration.set(0);
+    this.peerLeftMessage.set(null);
     this.isMuted.set(false);
     this.isCameraOff.set(false);
     this.isChatOpen.set(false);
@@ -521,6 +558,23 @@ export class VideoCallService {
     clearInterval(this.remoteAnalyserTimer);
 
     this.stopRingtone();
+
+    // Force a fresh signaling reconnect so the backend room is clean for the next call.
+    // Without this, stale server-side state can prevent incoming call signals from being replayed.
+    const bid = this.bookingId();
+    if (bid) {
+      setTimeout(() => {
+        // Close old socket intentionally, then open a fresh one
+        if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
+          this.isIntentionalDisconnect = true;
+          this.ws.close();
+          this.ws = null;
+        }
+        this.isIntentionalDisconnect = false;
+        this.signalingRetries = 0;
+        this._openSignalingSocket(bid);
+      }, 800); // short delay lets the call:end backend processing complete
+    }
   }
 
   // ── Ringtone Synthesizer ──────────────────────────
