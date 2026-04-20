@@ -6,6 +6,7 @@ import { ApiService } from '../../core/services/api.service'
 import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component'
 import { HeaderSearchComponent } from '../../shared/components/header-search/header-search.component'
 import { VideoCallComponent } from '../../shared/components/video-call/video-call.component'
+import { VideoCallService } from '../../core/services/video-call.service'
 import { NotificationService } from '../../core/services/notification.service'
 import { ThemeService } from '../../core/services/theme.service'
 
