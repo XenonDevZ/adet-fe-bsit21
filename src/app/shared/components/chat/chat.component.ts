@@ -24,9 +24,9 @@ import type { ChatMessage, Booking } from '../../../core/models/index';
   imports: [CommonModule, FormsModule],
   template: `
     <div [class]="videoCallService.isChatOpen() && videoCallService.callState() !== 'idle' 
-             ? 'fixed z-[9999] right-0 top-0 bottom-0 w-[24rem] shadow-[-10px_0_30px_rgba(0,0,0,0.5)] transition-all animate-in slide-in-from-right duration-300 pointer-events-auto bg-gray-50 dark:bg-[#1e1f22] border-l border-gray-200 dark:border-white/5 overflow-hidden' 
-             : 'flex flex-col h-full bg-white/70 dark:bg-card/90 backdrop-blur-3xl lg:rounded-[2.5rem] shadow-2xl overflow-hidden border-t lg:border border-white dark:border-white/5 relative group/wrapper'">
-      <div class="flex flex-col h-full bg-transparent overflow-hidden relative group/wrapper">
+             ? 'fixed z-[9999] right-0 top-0 bottom-0 w-[24rem] shadow-[-10px_0_30px_rgba(0,0,0,0.5)] transition-all animate-in slide-in-from-right duration-300 pointer-events-auto bg-gray-50 dark:bg-[#1e1f22] border-l border-gray-200 dark:border-white/5 overflow-hidden flex flex-col' 
+             : 'flex flex-col h-full overflow-hidden'">
+      <div class="flex flex-col h-full bg-transparent overflow-hidden">
       
       <!-- Chat header -->
       <div class="flex items-center justify-between px-6 py-4 lg:py-5 bg-gradient-to-r from-red-900 to-red-800 text-white flex-shrink-0 z-30 shadow-[0_10px_30px_-10px_rgba(153,27,27,0.3)] relative overflow-hidden">

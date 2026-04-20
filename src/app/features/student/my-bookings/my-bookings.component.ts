@@ -398,66 +398,62 @@ import { VideoCallService } from '../../../core/services/video-call.service';
           <!-- Overlay background for Mobile to act as modal backstop -->
           <div class="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40" (click)="selectedBooking.set(null)"></div>
           
-          <div class="fixed lg:sticky inset-x-0 bottom-0 top-16 lg:top-6 lg:w-[400px] xl:w-[450px] flex-shrink-0 z-50 lg:z-auto bg-gray-50 lg:bg-transparent rounded-t-[3rem] lg:rounded-none shadow-2xl lg:shadow-none overflow-hidden lg:overflow-visible transition-transform duration-300 flex flex-col">
-            <div class="space-y-4 p-4 lg:p-0 flex flex-col h-full lg:h-auto overflow-y-auto lg:overflow-visible">
+          <div class="fixed lg:sticky inset-x-0 bottom-0 top-16 lg:top-6 lg:w-[400px] xl:w-[450px] flex-shrink-0 z-50 lg:z-auto rounded-t-[3rem] lg:rounded-[2rem] shadow-2xl overflow-hidden transition-all duration-300 flex flex-col lg:h-[calc(100vh-6rem)]"
+               style="background: transparent">
+            <div class="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-[#1e1f22] rounded-t-[3rem] lg:rounded-[2rem]">
 
-              <!-- Chat Header Glass Card -->
-              <div class="bg-white/80 dark:bg-card/90 backdrop-blur-3xl rounded-[2.5rem] shadow-xl shadow-red-900/5 border border-white dark:border-white/5 overflow-hidden">
-                <!-- Mobile drag handle visual -->
-                <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full mx-auto mt-4 lg:hidden"></div>
-                <div class="h-1 bg-red-900 hidden lg:block"></div>
-                
-                <div class="p-6">
-                  <div class="flex items-center gap-4 mb-4">
-                    <img
-                      [src]="selectedBooking()!.teacher_picture || 'https://ui-avatars.com/api/?name=' + selectedBooking()!.teacher_name + '&background=831b1b&color=fff'"
-                      [alt]="selectedBooking()!.teacher_name"
-                      class="w-12 h-12 rounded-2xl object-cover border-2 border-white dark:border-black/50 shadow-md"/>
-                    <div class="flex-1 min-w-0">
-                      <p class="font-black text-gray-900 dark:text-foreground text-base truncate">{{ selectedBooking()!.teacher_name }}</p>
-                      <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">
-                        {{ selectedBooking()!.scheduled_date | date:'EEE, MMM d' }} · {{ selectedBooking()!.start_time | timeFormat }}
-                      </p>
+              <!-- Mobile drag handle -->
+              <div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mt-4 mb-1 lg:hidden shrink-0"></div>
+
+              <!-- Chat Header Info Card -->
+              <div class="shrink-0 bg-white/80 dark:bg-[#2b2d31] border-b border-gray-200 dark:border-white/5 px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <img
+                    [src]="selectedBooking()!.teacher_picture || 'https://ui-avatars.com/api/?name=' + selectedBooking()!.teacher_name + '&background=831b1b&color=fff'"
+                    [alt]="selectedBooking()!.teacher_name"
+                    class="w-10 h-10 rounded-2xl object-cover border-2 border-white dark:border-black/50 shadow-md"/>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-black text-gray-900 dark:text-foreground text-sm truncate">{{ selectedBooking()!.teacher_name }}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      @if (selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed) {
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.8)]"></span>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Live Session</p>
+                      } @else if (selectedBooking()!.status === 'COMPLETED' || selectedBooking()!.chat_closed) {
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">🔒 Session Ended</p>
+                      }
                     </div>
-                    <button (click)="selectedBooking.set(null)"
-                      class="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-card/100 rounded-xl transition-all shadow-sm active:scale-95 bg-white dark:bg-card border dark:border-white/5">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                    </button>
                   </div>
-                  @if (selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed) {
-                    <div class="flex items-center gap-2 bg-emerald-50/80 backdrop-blur-sm border border-emerald-200 rounded-2xl px-4 py-2.5 shadow-inner">
-                      <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-                      <p class="text-[11px] font-black uppercase tracking-widest text-emerald-800">Live Session Active</p>
-                    </div>
-                  }
-                  @if (selectedBooking()!.status === 'APPROVED' && selectedBooking()!.chat_closed) {
-                    <div class="flex items-center gap-2 bg-gray-50/80 backdrop-blur-sm border border-gray-200 rounded-2xl px-4 py-2.5 shadow-inner">
-                      <span class="text-sm">🔒</span>
-                      <p class="text-[11px] font-black uppercase tracking-widest text-gray-600">Consultation Ended</p>
-                    </div>
-                  }
-                  @if (selectedBooking()!.status === 'COMPLETED') {
-                    <div class="flex items-center gap-2 bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-2xl px-4 py-2.5 shadow-inner">
-                      <span class="text-sm">📋</span>
-                      <p class="text-[11px] font-black uppercase tracking-widest text-blue-800">Chat Transcript</p>
-                    </div>
-                  }
+                </div>
+                <div class="flex items-center gap-2">
+                  <p class="text-[10px] font-bold text-gray-400 hidden sm:block">{{ selectedBooking()!.scheduled_date | date:'MMM d' }} · {{ selectedBooking()!.start_time | timeFormat }}</p>
+                  <button (click)="selectedBooking.set(null)"
+                    class="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all active:scale-95">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
-              @if (!chatReady[selectedBooking()!.id] && selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed) {
-                <app-consultation-countdown
-                  [booking]="selectedBooking()!"
-                  (chatReadyChange)="onChatReady(selectedBooking()!.id, $event)"/>
-              }
-              @if (selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed && chatReady[selectedBooking()!.id]) {
-                <app-chat [booking]="selectedBooking()!"/>
-              }
-              @if (selectedBooking()!.status === 'COMPLETED' || selectedBooking()!.chat_closed) {
-                <app-chat [booking]="selectedBooking()!"/>
-              }
+              <!-- Chat Body — fills remaining height -->
+              <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+                @if (!chatReady[selectedBooking()!.id] && selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed) {
+                  <app-consultation-countdown
+                    [booking]="selectedBooking()!"
+                    (chatReadyChange)="onChatReady(selectedBooking()!.id, $event)"/>
+                }
+                @if (selectedBooking()!.status === 'APPROVED' && !selectedBooking()!.chat_closed && chatReady[selectedBooking()!.id]) {
+                  <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    <app-chat [booking]="selectedBooking()!"/>
+                  </div>
+                }
+                @if (selectedBooking()!.status === 'COMPLETED' || selectedBooking()!.chat_closed) {
+                  <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    <app-chat [booking]="selectedBooking()!"/>
+                  </div>
+                }
+              </div>
+
             </div>
           </div>
         }
