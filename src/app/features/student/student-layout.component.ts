@@ -250,7 +250,7 @@ export class StudentLayoutComponent {
           b.consultation_type === 'ONLINE' && 
           !b.chat_closed && 
           this.isLive(b.scheduled_date, b.start_time, b.end_time)
-        );
+        ) as any;
         
         if (liveBooking && this.videoCallService.bookingId() !== liveBooking.id) {
           this.videoCallService.connectSignaling(liveBooking.id);
