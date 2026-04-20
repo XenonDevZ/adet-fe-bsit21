@@ -9,6 +9,7 @@ import { HeaderSearchComponent } from '../../shared/components/header-search/hea
 import { VideoCallComponent } from '../../shared/components/video-call/video-call.component'
 import { NotificationService } from '../../core/services/notification.service'
 import { ThemeService } from '../../core/services/theme.service'
+import { VideoCallService } from '../../core/services/video-call.service'
 
 @Component({
   selector: 'app-teacher-layout',
@@ -245,17 +246,18 @@ import { ThemeService } from '../../core/services/theme.service'
   `,
 })
 export class TeacherLayoutComponent {
-  auth = inject(AuthService)
-  notifService = inject(NotificationService)
-  themeService = inject(ThemeService)
-  private api = inject(ApiService)
-  private router = inject(Router)
+  auth             = inject(AuthService)
+  notifService     = inject(NotificationService)
+  themeService     = inject(ThemeService)
+  private api      = inject(ApiService)
+  private router   = inject(Router)
+  videoCallService = inject(VideoCallService)
 
-  showPanel = signal(false)
+  showPanel     = signal(false)
   mobileMenuOpen = signal(false)
-  pendingCount = signal(0)
+  pendingCount  = signal(0)
   departmentSet = signal(false)
-  loadingDept = signal(true)
+  loadingDept   = signal(true)
 
   constructor() {
     this.loadPendingCount()
@@ -267,6 +269,46 @@ export class TeacherLayoutComponent {
       .subscribe(() => {
         this.loadPendingCount()
       })
+
+    // ── Global Incoming Call Listener for Teachers ──
+    // Teachers receive calls from anywhere in their portal, not just in the chat view
+    this.probeActiveCalls();
+    setInterval(() => {
+      this.probeActiveCalls();
+    }, 45000);
+  }
+
+  private probeActiveCalls(): void {
+    if (this.videoCallService.callState() !== 'idle') return;
+
+    this.api.getBookings().subscribe({
+      next: (res) => {
+        const liveBooking = res.data.find((b: any) =>
+          b.status === 'APPROVED' &&
+          b.consultation_type === 'ONLINE' &&
+          !b.chat_closed &&
+          this.isLive(b.scheduled_date, b.start_time, b.end_time)
+        );
+        if (liveBooking && this.videoCallService.bookingId() !== liveBooking.id) {
+          this.videoCallService.connectSignaling(liveBooking.id);
+        }
+      }
+    });
+  }
+
+  private isLive(dateStr: string, start: string, end: string): boolean {
+    const today = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const localDate = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+    const dStr = dateStr.split('T')[0];
+    if (dStr !== localDate) return false;
+    const toMins = (t: string) => {
+      const [h, rest] = t.split(':');
+      const [m] = rest.split(' ');
+      return parseInt(h, 10) * 60 + parseInt(m, 10);
+    };
+    const nowMins = today.getHours() * 60 + today.getMinutes();
+    return nowMins >= (toMins(start) - 5) && nowMins <= toMins(end);
   }
 
   @HostListener('window:resize')

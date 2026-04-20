@@ -12,6 +12,7 @@ import type { Booking, Availability, Feedback } from '../../../core/models/index
 import { BookingDetailComponent } from '../../../shared/components/booking-detail/booking-detail.component';
 import { TimeFormatPipe } from '../../../shared/pipes/time-format.pipe';
 import { DatePickerModule } from 'primeng/datepicker';
+import { VideoCallService } from '../../../core/services/video-call.service';
 
 @Component({
   selector: 'app-my-bookings',
@@ -682,12 +683,17 @@ export class MyBookingsComponent implements OnInit {
   });
 
   presence = inject(PresenceService);
+  videoCallService = inject(VideoCallService);
 
   ngOnInit(): void {
     this.load();
     this.presence.refreshEvents.subscribe(() => {
       this.load();
     });
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup if necessary
   }
 
   load(): void {
@@ -697,6 +703,17 @@ export class MyBookingsComponent implements OnInit {
         this.loading.set(false);
         // Auto-load feedback for completed bookings
         res.data.filter(b => b.status === 'COMPLETED').forEach(b => this.loadFeedback(b.id));
+
+        // ── Auto-connect WebRTC Signaling for Live Sessions ──
+        const liveBooking = res.data.find(b => 
+          b.status === 'APPROVED' && 
+          b.consultation_type === 'ONLINE' && 
+          !b.chat_closed && 
+          this.isLive(b.scheduled_date, b.start_time, b.end_time)
+        );
+        if (liveBooking) {
+          this.videoCallService.connectSignaling(liveBooking.id);
+        }
       },
       error: () => this.loading.set(false),
     });
